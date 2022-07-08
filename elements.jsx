@@ -9,6 +9,7 @@ import { capitalize, indent, toCamelCase, numberToEnglishArray, toPascalCase, to
 window.Elemental = Elemental // for debugging only
 
 const randomId = Elemental.randomId
+const combineClasses = Elemental.combineClasses
 
 const translateAlignment = (name) => {
     if (name == "top" || name == "left") {
@@ -23,6 +24,7 @@ const translateAlignment = (name) => {
 const classIds = {
     column: randomId(`column`),
     row: randomId(`row`),
+    popUp: randomId(`popUp`),
 }
 
 document.body.appendChild(<style>{`
@@ -33,6 +35,17 @@ document.body.appendChild(<style>{`
     .${classIds.row} {
         display: flex;
         flex-direction: row;
+    }
+    .${classIds.popUp} {
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top:0;
+        left: 0;
+        z-index: 5000;
+        display: flex;
+        width: 100vw;
+        height: 100vh;
     }
 `}</style>)
 
@@ -46,7 +59,7 @@ export const Column = ({ children, style, center=false, verticalAlignment=null, 
         horizontalAlignment = horizontalAlignment || "left"
     }
     return <div
-        class={Elemental.combineClasses(classIds.column, otherArgs.class)}
+        class={combineClasses(classIds.column, otherArgs.class)}
         style={`justify-content: ${translateAlignment(verticalAlignment)}; align-items: ${translateAlignment(horizontalAlignment)}; text-align: ${horizontalAlignment}; ${css(style)}; ${css(otherArgs)};`}
         {...otherArgs}
         >
@@ -63,7 +76,7 @@ export const Row = ({ children, style, center=false, verticalAlignment=null, hor
         horizontalAlignment = horizontalAlignment || "left"
     }
     return <div
-        class={Elemental.combineClasses(classIds.row, otherArgs.class)}
+        class={combineClasses(classIds.row, otherArgs.class)}
         style={`justify-content: ${translateAlignment(horizontalAlignment)}; align-items: ${translateAlignment(verticalAlignment)}; text-align: ${horizontalAlignment}; ${css(style)}; ${css(otherArgs)};`}
         {...otherArgs}
         >
@@ -77,6 +90,25 @@ export const Input = ({ children, style, ...otherArgs }) => {
         style={`${css(style)}; ${css(otherArgs)};`}
         {...otherArgs}
         />
+}
+
+export const popUp = async ({ children, style, center, ...otherArgs })=>{
+    const container = <div
+        class={combineClasses(classIds.popUp, otherArgs.class)}
+        onClick={event=>{
+            // if actually clicked the container itself
+            if (event.target == container) {
+                // close the popUp
+                container.remove()
+            }
+        }}
+        >
+            <Column verticalAlignment="top" horizontalAlignment="center" style="width: fit-content; height: 50vh; overflow-y: auto;">
+                {children}
+            </Column>
+    </div>
+    document.body.prepend(container)
+    return container
 }
 
 export const askForFiles = async ()=>{
@@ -98,4 +130,3 @@ export const askForFiles = async ()=>{
         filePicker.click()
     })
 }
-window.askForFiles = askForFiles
