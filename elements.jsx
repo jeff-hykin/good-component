@@ -6,6 +6,39 @@
 import { html, css, Elemental } from "https://raw.githubusercontent.com/jeff-hykin/elemental/f9764dd95cb0e645e1dffbe369b7a6467d2e77e3/main/deno.js"
 import { capitalize, indent, toCamelCase, numberToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString } from "https://deno.land/x/good@0.5.15/string.js"
 
+// roadmap of tools:
+    // Code
+    // Collaspable
+    // NestedMenus
+    // inputs:
+        // Button
+        // Dropdown
+        // Search
+            // MultiSelect
+            // SingleSelect
+        // ExpandingTextbox
+        // Checkbox
+        // PickOne
+        // PickMany
+        // Number
+        // Slider
+        // DatePicker
+        // TimePicker
+        // DateTimePicker
+        // PhoneNumber
+        // Email
+        // Address
+    // outputs:
+        // Toast
+        // Popover
+        // Chip
+        // LoadingSpinner
+            // progress option
+        // Tabs
+    // Video
+        // mp4/avi source link
+    
+
 window.Elemental = Elemental // for debugging only
 
 const randomId = Elemental.randomId
@@ -25,6 +58,7 @@ const classIds = {
     column: randomId(`column`),
     row: randomId(`row`),
     popUp: randomId(`popUp`),
+    button: randomId(`button`),
 }
 
 document.body.appendChild(<style>{`
@@ -46,6 +80,10 @@ document.body.appendChild(<style>{`
         display: flex;
         width: 100vw;
         height: 100vh;
+    }
+    .${classIds.button} {
+        background: whitesmoke;
+        box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
     }
 `}</style>)
 
@@ -87,6 +125,14 @@ export const Row = ({ children, style, center=false, verticalAlignment=null, hor
 export const Input = ({ children, style, ...otherArgs }) => {
     return <input
         class={otherArgs.class}
+        style={`${css(style)}; ${css(otherArgs)};`}
+        {...otherArgs}
+        />
+}
+
+export const Button = ({ children, style, ...otherArgs }) => {
+    return <button
+        class={combineClasses(classIds.button, otherArgs.class)}
         style={`${css(style)}; ${css(otherArgs)};`}
         {...otherArgs}
         />
