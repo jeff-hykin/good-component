@@ -316,6 +316,46 @@ window.Elemental = Elemental // for debugging only
                 {children}
             </button>
         }
+    
+    // 
+    // Checkbox
+    // 
+        const checkboxClass = createCssClass(`checkbox`, [ // these merely exist to create similar behavior across browsers 
+            `{
+                box-sizing: border-box;
+                padding: 0;
+            }`,
+        ])
+        export function Checkbox(arg) {
+            // 
+            // class
+            // 
+            arg       = setupClassStyles(arg)
+            arg.class = combineClasses(inputClass, checkboxClass, arg.class)
+            
+            // 
+            // element
+            // 
+            const element = <input type="checkbox" {...arg} />
+
+            // 
+            // treat value the same as checked (although checked overrides value if both are given)
+            // 
+            Object.defineProperties(element, {
+                value: {
+                    get() { this.checked },
+                    set(value) { this.checked = value },
+                } 
+            })
+            const propNames = Object.keys(arg)
+            if (!propNames.includes("checked") && propNames.includes("value")) {
+                element.checked = arg.value
+            } else {
+                element.checked = arg.checked
+            }
+
+            return element
+        }
 // 
 // 
 // 
