@@ -3,11 +3,12 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.asynciterable" />
 /// <reference lib="deno.ns" />
-import { html, css, Elemental } from "https://raw.githubusercontent.com/jeff-hykin/elemental/f9764dd95cb0e645e1dffbe369b7a6467d2e77e3/main/deno.js"
+import { html, css, Elemental, combineClasses } from "https://deno.land/x/elementalist@0.5.19/main/deno.js?code"
 import { capitalize, indent, toCamelCase, numberToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString } from "https://deno.land/x/good@0.5.15/string.js"
+import { sha256 } from "https://denopkg.com/chiefbiiko/sha256@v1.0.0/mod.ts"
+const hash = (value)=>sha256(value, 'utf-8', 'hex')
 
 // roadmap of tools:
-    // Code
     // Collaspable
     // NestedMenus
     // Table
@@ -39,254 +40,300 @@ import { capitalize, indent, toCamelCase, numberToEnglishArray, toPascalCase, to
     // Video
         // mp4/avi source link
     // ContextMenu
-    
+
 
 window.Elemental = Elemental // for debugging only
 
-const randomId = Elemental.randomId
-const combineClasses = Elemental.combineClasses
-
-const translateAlignment = (name) => {
-    if (name == "top" || name == "left") {
-        return "flex-start"
-    } else if (name == "bottom" || name == "right") {
-        return "flex-end"
-    } else {
-        return name
-    }
-}
-
-const classIds = {
-    column: randomId(`column`),
-    row: randomId(`row`),
-    popUp: randomId(`popUp`),
-    button: randomId(`button`),
-    code: randomId(`code`),
-}
-
-document.body.appendChild(<style>{`
-    .${classIds.column} {
-        display: flex;
-        flex-direction: column;
-        transition: all 0.5s ease-in-out 0s;
-    }
-    .${classIds.row} {
-        display: flex;
-        flex-direction: row;
-        transition: all 0.5s ease-in-out 0s;
-    }
-    .${classIds.popUp} {
-        align-items: center;
-        justify-content: center;
-        position: absolute;
-        top:0;
-        left: 0;
-        z-index: 5000;
-        display: flex;
-        width: 100vw;
-        height: 100vh;
-    }
-    .${classIds.button} {
-        background: whitesmoke;
-        box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
-        transition: all 0.5s ease-in-out 0s;
-    }
-    .${classIds.code} {
-        white-space: pre;
-        background: gray;
-        color: white;
-        font-size: 11pt;
-        padding: 0.5rem 0.7rem;
-        border-radius: 0.4rem;
-        transition: all 0.5s ease-in-out 0s;
-    }
-`}</style>)
+// 
+// 
+// Helpers
+// 
+// 
 
 
-const hoverStyleHelper = ({ element, hoverStyle }) => {
-    if (hoverStyle) {
-        let hoverStyleAlreadyActive = false
-        const helper = document.createElement("div")
-        const hoverStyleAsString = `${css(hoverStyle)}`
-        helper.style.cssText = hoverStyleAsString // style string values change when attached to actual elements
-        const styleObject = {}
-        const keys = Object.values(helper.style) // yes I know it says keys= .values() but its true
-        for (const key of keys) {
-            styleObject[key] = helper.style[key]
-        }
-        const valuesBefore = {}
-        
-        element.addEventListener("mouseover", ()=>{
-            if (!hoverStyleAlreadyActive) {
-                hoverStyleAlreadyActive = true
-                for (const key of keys) {
-                    valuesBefore[key] = element.style[key]
-                }
-                element.style.cssText += hoverStyleAsString
-            }
-        })
-
-        element.addEventListener("mouseout", ()=>{
-            if (hoverStyleAlreadyActive) {
-                hoverStyleAlreadyActive = false
-                const style = element.style
-                const mixinStyleObject = {}
-                for (const [key, value] of Object.entries(styleObject)) {
-                    // if it wasn't changed
-                    if (style[key] == value) {
-                        // then restore the old value
-                        mixinStyleObject[key] = valuesBefore[key]
-                    }
-                }
-                const mixinStyles = `${css(mixinStyleObject)}`
-                style.cssText += mixinStyles           // this is needed for values with !important
-                Object.assign(style, mixinStyleObject) // needed for empty values 
-            }
-        })
-    }
-}
-
-
-export function Box({
-        children,
-        style,
-        hoverStyle,
-        row,
-        column=true,
-        center=false,
-        verticalAlignment=null,
-        horizontalAlignment=null,
-        onBlur,
-        onChange,
-        onClick,
-        onContextMenu,
-        onDblClick,
-        onMouseDown,
-        onMouseEnter,
-        onMouseLeave,
-        onMouseMove,
-        onMouseOut,
-        onMouseOver,
-        onMouseUp,
-        ...otherArgs
-    }) {
-        let justify, align, text, theClass
-        
-        if (!row) {
-            if (center) {
-                verticalAlignment = verticalAlignment || "center"
-                horizontalAlignment = horizontalAlignment || "center"
-            } else {
-                verticalAlignment = verticalAlignment || "top"
-                horizontalAlignment = horizontalAlignment || "left"
-            }
-            justify = verticalAlignment
-            align = horizontalAlignment
-            text = horizontalAlignment
-            theClass = classIds.column
+    // 
+    // create helper element for styles and such
+    // 
+    const helperElement = document.createElement("div")
+    helperElement.setAttribute("note", "STUFF WILL BREAK IF YOU DELETE ME")
+    helperElement.setAttribute("style", "position: fixed; top: 0; left: 0;")
+    window.addEventListener("load", ()=>document.body.prepend(helperElement))
+    const helperStyle = document.createElement("style")
+    const setupStyles = (arg, styles)=>{
+        if (arg.styles) {
+            arg.styles = `${styles};${css(arg.styles)};`
         } else {
-            if (center) {
-                verticalAlignment = verticalAlignment || "center"
-                horizontalAlignment = horizontalAlignment || "center"
-            } else {
-                verticalAlignment = verticalAlignment || "top"
-                horizontalAlignment = horizontalAlignment || "left"
-            }
-            justify = horizontalAlignment
-            align = verticalAlignment
-            text = horizontalAlignment
-            theClass = classIds.row
+            arg.styles = styles
         }
-        
-        const element = <div
-            class={combineClasses(theClass, otherArgs.class)}
-            style={`justify-content: ${translateAlignment(justify)}; align-items: ${translateAlignment(align)}; text-align: ${text}; ${css(style)}; ${css(otherArgs)};`}
-            onBlur={onBlur}
-            onChange={onChange}
-            onClick={onClick}
-            onContextMenu={onContextMenu}
-            onDblClick={onDblClick}
-            onMouseDown={onMouseDown}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
-            onMouseMove={onMouseMove}
-            onMouseOut={onMouseOut}
-            onMouseOver={onMouseOver}
-            onMouseUp={onMouseUp}
-            {...otherArgs}
+        return arg
+    }
+
+    const dynamicClasses = new Set()
+    const createCssClass = (name, styles)=>{
+        const classStyles = [styles].flat(Infinity)
+        const key = `${name}${hash(`${classStyles}`)}`
+        if (!dynamicClasses.has(key)) {
+            dynamicClasses.add(key)
+            for (const each of classStyles) {
+                helperStyle.innerHTML += `.${key}${each}`
+            }
+        }
+        return key
+    }
+    const setupClassStyles = (arg)=>{
+        if (arg.classStyles) {
+            const className = createCssClass(``,arg.classStyles)
+            arg.class = combineClasses(className, arg.class)
+        }
+        return arg
+    }
+
+
+    const translateAlignment = (name) => {
+        if (name == "top" || name == "left") {
+            return "flex-start"
+        } else if (name == "bottom" || name == "right") {
+            return "flex-end"
+        } else {
+            return name
+        }
+    }
+
+    const hoverStyleHelper = ({ element, hoverStyle }) => {
+        if (hoverStyle) {
+            let hoverStyleAlreadyActive = false
+            const helper = document.createElement("div")
+            const hoverStyleAsString = `${css(hoverStyle)}`
+            helper.style.cssText = hoverStyleAsString // style string values change when attached to actual elements
+            const styleObject = {}
+            const keys = Object.values(helper.style) // yes I know it says keys= .values() but its true
+            for (const key of keys) {
+                styleObject[key] = helper.style[key]
+            }
+            const valuesBefore = {}
+            
+            element.addEventListener("mouseover", ()=>{
+                if (!hoverStyleAlreadyActive) {
+                    hoverStyleAlreadyActive = true
+                    for (const key of keys) {
+                        valuesBefore[key] = element.style[key]
+                    }
+                    element.style.cssText += hoverStyleAsString
+                }
+            })
+
+            element.addEventListener("mouseout", ()=>{
+                if (hoverStyleAlreadyActive) {
+                    hoverStyleAlreadyActive = false
+                    const style = element.style
+                    const mixinStyleObject = {}
+                    for (const [key, value] of Object.entries(styleObject)) {
+                        // if it wasn't changed
+                        if (style[key] == value) {
+                            // then restore the old value
+                            mixinStyleObject[key] = valuesBefore[key]
+                        }
+                    }
+                    const mixinStyles = `${css(mixinStyleObject)}`
+                    style.cssText += mixinStyles           // this is needed for values with !important
+                    Object.assign(style, mixinStyleObject) // needed for empty values 
+                }
+            })
+        }
+    }
+
+
+
+// 
+// 
+// 
+// Components
+// 
+// 
+// 
+    // 
+    // Column
+    // 
+        const columnClass = createCssClass(`column`, [
+            `{
+                display: flex;
+                flex-direction: column;
+                transition: all 0.4s ease-in-out 0s;
+            }`
+        ])
+        export function Column({ verticalAlignment, horizontalAlignment, ...arg }) {
+            // 
+            // class
+            // 
+            arg       = setupClassStyles(arg)
+            arg.class = combineClasses(columnClass, arg.class)
+            
+            // 
+            // style
+            // 
+            const justify = translateAlignment(verticalAlignment || "top")
+            const align = translateAlignment(horizontalAlignment || "left")
+            const verticalText = verticalAlignment == "center" ? "middle" : verticalAlignment // css is a special breed of inconsistent
+            arg = setupStyles(arg, `
+                justify-content: ${justify};
+                align-items: ${align};
+                text-align: ${horizontalAlignment};
+                vertical-align: ${verticalText};
+            `)
+
+            // 
+            // element
+            // 
+            return <div {...arg}>
+                {children}
+            </div>
+        }
+
+    // 
+    // row
+    // 
+        const rowClass = createCssClass(`row`, [
+            `{
+                display: flex;
+                flex-direction: row;
+                transition: all 0.4s ease-in-out 0s;
+            }`
+        ])
+        export function Row({ verticalAlignment, horizontalAlignment, ...arg }) {
+            // 
+            // class
+            // 
+            arg       = setupClassStyles(arg)
+            arg.class = combineClasses(rowClass, arg.class)
+            
+            // 
+            // style
+            // 
+            const justify = translateAlignment(horizontalAlignment || "left")
+            const align = translateAlignment(verticalAlignment || "top")
+            const verticalText = verticalAlignment == "center" ? "middle" : verticalAlignment // css is a special breed of inconsistent
+            arg = setupStyles(arg, `
+                justify-content: ${justify};
+                align-items: ${align};
+                text-align: ${horizontalAlignment};
+                vertical-align: ${verticalText};
+            `)
+
+            // 
+            // element
+            // 
+            return <div {...arg}>
+                {children}
+            </div>
+        }
+
+    // 
+    // Input
+    // 
+        const inputClass = createCssClass(`input`, [ // these merely exist to create similar behavior across browsers 
+            `{
+                margin: 0;
+                font-family: inherit;
+                font-size: inherit;
+                line-height: inherit;
+                overflow: visible;
+            }`,
+            `[type=date]           { -webkit-appearance: listbox; }`,
+            `[type=time]           { -webkit-appearance: listbox; }`,
+            `[type=datetime-local] { -webkit-appearance: listbox; }`,
+            `[type=month]          { -webkit-appearance: listbox; }`,
+        ])
+        export function Input(arg) {
+            // 
+            // class
+            // 
+            arg       = setupClassStyles(arg)
+            arg.class = combineClasses(inputClass, arg.class)
+            
+            // 
+            // element
+            // 
+            return <div {...arg}>
+                {children}
+            </div>
+        }
+    
+    // 
+    // Code
+    // 
+        const codeClass = createCssClass(`code`, [ // these mostly exist to create similar behavior across browsers 
+            `{
+                white-space: pre;
+                font-family: monospace, monospace;
+                font-size: 100%;
+                font: inherit;
+                vertical-align: baseline;
+                margin: 0;
+                padding: 0;
+                border: 0;
+            }`,
+        ])
+        export function Code(arg) {
+            // 
+            // class
+            // 
+            arg       = setupClassStyles(arg)
+            arg.class = combineClasses(codeClass, arg.class)
+            
+            // 
+            // element
+            // 
+            return <div {...arg}>
+                {children}
+            </div>
+        }
+
+// 
+// 
+// 
+// Actions
+// 
+// 
+// 
+    export const askForFiles = async ()=>{
+        return new Promise((resolve, reject)=>{
+            const cleanResolve = (returnValue)=>{
+                resolve(returnValue)
+                window.removeEventListener("focus", listener)
+                try {
+                    helperElement.removeChild(filePicker)
+                } catch (error) {
+                    
+                }
+            }
+            const listener = ()=>cleanResolve([])
+            window.addEventListener("focus", listener)
+            let filePicker = <input
+                type="file"
+                onInput={event=>{ cleanResolve(event.target.files) }}
+                onBlur={event=>{ cleanResolve([]) }}
+                hidden
+                />
+            helperElement.appendChild(filePicker)
+            filePicker.click()
+        })
+    }
+
+    export const popUp = async ({ children, ...otherArgs })=>{
+        const container = <div
+            class={combineClasses(classIds.popUp, otherArgs.class)}
+            onClick={event=>{
+                // if actually clicked the container itself
+                if (event.target == container) {
+                    // close the popUp
+                    container.remove()
+                }
+            }}
             >
-                {children}
+                <Column verticalAlignment="top" horizontalAlignment="center" style="width: fit-content; height: 50vh; overflow-y: auto;">
+                    {children}
+                </Column>
         </div>
-
-        hoverStyleHelper({ element, hoverStyle })
-        
-        return element
-}
-
-export const Column = Box
-
-export const Row = (arg)=>Box({...arg, row: true})
-
-export const Input = ({ children, style, ...otherArgs }) => {
-    return <input
-        class={otherArgs.class}
-        style={`${css(style)}; ${css(otherArgs)};`}
-        {...otherArgs}
-        />
-}
-
-export const Code = ({ children, style, hoverStyle, onMouseOver, onMouseOut, onClick, ...otherArgs }) => {
-    const element = <code
-        class={combineClasses(classIds.code, otherArgs.class)}
-        style={`${css(style)}; ${css(otherArgs)};`}
-        onClick={onClick}
-        onMouseOver={onMouseOver}
-        onMouseOut={onMouseOut}
-        {...otherArgs}
-        >
-            {children}
-    </code>
-
-    hoverStyleHelper({ element, hoverStyle })
-
-    return element
-}
-
-export const popUp = async ({ children, style, center, ...otherArgs })=>{
-    const container = <div
-        class={combineClasses(classIds.popUp, otherArgs.class)}
-        onClick={event=>{
-            // if actually clicked the container itself
-            if (event.target == container) {
-                // close the popUp
-                container.remove()
-            }
-        }}
-        >
-            <Column verticalAlignment="top" horizontalAlignment="center" style="width: fit-content; height: 50vh; overflow-y: auto;">
-                {children}
-            </Column>
-    </div>
-    document.body.prepend(container)
-    return container
-}
-
-export const askForFiles = async ()=>{
-    return new Promise((resolve, reject)=>{
-        const cleanResolve = (returnValue)=>{
-            resolve(returnValue)
-            window.removeEventListener("focus", listener)
-            document.body.removeChild(filePicker)
-        }
-        const listener = ()=>cleanResolve([])
-        window.addEventListener("focus", listener)
-        let filePicker = <input
-            type="file"
-            onInput={event=>{ cleanResolve(event.target.files) }}
-            onBlur={event=>{ cleanResolve([]) }}
-            hidden
-            />
-        document.body.appendChild(filePicker)
-        filePicker.click()
-    })
-}
+        helperElement.prepend(container)
+        return container
+    }
