@@ -226,6 +226,36 @@ window.Elemental = Elemental // for debugging only
                 {children}
             </div>
         }
+    
+    // 
+    // Code
+    // 
+        const codeClass = createCssClass(`code`, [ // these mostly exist to create similar behavior across browsers 
+            `{
+                white-space: pre;
+                font-family: monospace, monospace;
+                font-size: 100%;
+                font: inherit;
+                vertical-align: baseline;
+                margin: 0;
+                padding: 0;
+                border: 0;
+            }`,
+        ])
+        export function Code(arg) {
+            // 
+            // class
+            // 
+            arg       = setupClassStyles(arg)
+            arg.class = combineClasses(codeClass, arg.class)
+            
+            // 
+            // element
+            // 
+            return <code {...arg}>
+                {children}
+            </code>
+        }
 
     // 
     // Input
@@ -253,41 +283,39 @@ window.Elemental = Elemental // for debugging only
             // 
             // element
             // 
-            return <div {...arg}>
-                {children}
-            </div>
+            return <input {...arg} />
         }
     
     // 
-    // Code
+    // Button
     // 
-        const codeClass = createCssClass(`code`, [ // these mostly exist to create similar behavior across browsers 
+        const buttonClass = createCssClass(`button`, [ // these merely exist to create similar behavior across browsers 
             `{
-                white-space: pre;
-                font-family: monospace, monospace;
-                font-size: 100%;
-                font: inherit;
-                vertical-align: baseline;
+                border-radius: 0;
                 margin: 0;
-                padding: 0;
-                border: 0;
+                font-family: inherit;
+                font-size: inherit;
+                line-height: inherit;
+                -webkit-appearance: button;
+                overflow: visible;
+                text-transform: none;
             }`,
+            `::-moz-focus-inner   { border-style: none; padding: 0;}`,
         ])
-        export function Code(arg) {
+        export function Button(arg) {
             // 
             // class
             // 
             arg       = setupClassStyles(arg)
-            arg.class = combineClasses(codeClass, arg.class)
+            arg.class = combineClasses(buttonClass, arg.class)
             
             // 
             // element
             // 
-            return <div {...arg}>
+            return <button {...arg}>
                 {children}
-            </div>
+            </button>
         }
-
 // 
 // 
 // 
