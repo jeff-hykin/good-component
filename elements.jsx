@@ -9,37 +9,48 @@ import { sha256 } from "https://denopkg.com/chiefbiiko/sha256@v1.0.0/mod.ts"
 const hash = (value)=>sha256(value, 'utf-8', 'hex')
 
 // roadmap of tools:
-    // Collaspable
-    // NestedMenus
-    // Table
+    // done: Code
+    // systems:
+        // Collaspable (using client height)
+        // PopOver (attach listeners to an element)
+        // ContextMenu (global element that shows in the right place)
+        // consider scroll-fix system
+    // outputs:
+        // Toast
     // inputs:
-        // Button
+        // done: Input
+        // done: Button
+        // done: Checkbox
         // Dropdown
-        // Search
-            // MultiSelect
-            // SingleSelect
         // ExpandingTextbox
-        // Checkbox
-        // PickOne
-        // PickMany
         // Number
         // Slider
+        // PhoneNumber
+        // Email
+    // Image (format, from hex, url)
+    // Table (rows or columns format, using getters)
+// beyond scope:
+    // Form (input validity)
+    // inputs:
+        // PickOne
+        // PickMany
         // DatePicker
         // TimePicker
         // DateTimePicker
-        // PhoneNumber
-        // Email
+        // Search
+            // MultiSelect
+            // SingleSelect
         // Address
     // outputs:
-        // Toast
-        // Popover
+        // Tabs
         // Chip
         // LoadingSpinner
             // progress option
-        // Tabs
+    // systems:
+        // ContextMenuHelper (list options, attach callbacks)
+        // NestedMenus
     // Video
         // mp4/avi source link
-    // ContextMenu
 
 
 window.Elemental = Elemental // for debugging only
@@ -355,6 +366,95 @@ window.Elemental = Elemental // for debugging only
             }
 
             return element
+        }
+    
+    // 
+    // Dropdown
+    // 
+        const originalDisplayValueSymbol = Symbol("originalDisplayValue")
+        const dropdownPlaceholder = createCssClass(`dropdownPlaceholder`, [ // these merely exist to create similar behavior across browsers 
+            `{
+                overflow: visible;
+            }`,
+        ])
+        const dropdownList = createCssClass(`dropdownList`, [ // these merely exist to create similar behavior across browsers 
+            `{
+                overflow: auto;
+                height: fit-content;
+                max-height: 50vh;
+            }`,
+        ])
+        export function Dropdown({ children, ...arg}) {
+            // 
+            // class
+            // 
+            arg       = setupClassStyles(arg)
+            arg.class = combineClasses(dropdownList, arg.class)
+            
+            // 
+            // elements
+            // 
+            const placeholder = <Column class={dropdownPlaceholder} />
+            const listOfOptions = <Column class={dropdownList} {...arg}>
+                {children}
+            </Column>
+            // init the display values
+            for (const each of listOfOptions.children) {
+                each[originalDisplayValueSymbol] = each.style.display
+            }
+
+            // 
+            // events
+            // 
+            const onMainClickOrInput = (event)=> {
+                // get the current dimensions to make a placeholder
+                placeholder.style.minHeight = `${listOfOptions.clientHeight}px`
+                placeholder.style.maxHeight = `${listOfOptions.clientHeight}px`
+                placeholder.style.minWidth = `${listOfOptions.clientWidth}px`
+                placeholder.style.maxWidth = `${listOfOptions.clientWidth}px`
+                // nest them
+                const parent = listOfOptions.parentNode
+                parent.replaceChild(placeholder, listOfOptions)
+                placeholder.appendChild(listOfOptions)
+
+                // show all the options instead of only the selected one
+                for (const each of listOfOptions.children) {
+                    each.style.display = each[originalDisplayValueSymbol]
+                }
+            }
+            const onOptionClickOrInput = (event)=> {
+                placeholder.selected = event.target
+                
+                // hide all non-selected options
+                for (const each of listOfOptions.children) {
+                    each[originalDisplayValueSymbol] = each.style.display
+                    // hide all the non selected values
+                    if (each != element.selected) {
+                        each.style.display = "none"
+                    }
+                }
+
+                // remove the placeholder
+                const parent = placeholder?.parentNode
+                if (parent?.replaceChild) {
+                    parent.replaceChild(listOfOptions, placeholder)
+                }
+            }
+            
+            // attach listeners
+            listOfOptions.addEventListener("click", onMainClickOrInput)
+            listOfOptions.addEventListener("input", onMainClickOrInput)
+            for (const each of listOfOptions.children) {
+                each.addEventListener("click", onOptionClickOrInput)
+                each.addEventListener("input", onOptionClickOrInput)
+            }
+
+            //
+            // handle default value, hides list of options
+            //
+            onOptionClickOrInput({target: args.default})
+
+            return listOfOptions
         }
 // 
 // 
