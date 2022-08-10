@@ -15,6 +15,7 @@ const hash = (value)=>sha256(value, 'utf-8', 'hex')
         // PopOver (attach listeners to an element)
         // ContextMenu (global element that shows in the right place)
         // consider scroll-fix system
+        // ZoomPanScroll control
     // outputs:
         // Toast
     // inputs:
@@ -30,6 +31,7 @@ const hash = (value)=>sha256(value, 'utf-8', 'hex')
     // Image (format, from hex, url)
     // Table (rows or columns format, using getters)
 // beyond scope:
+    // SwiperChoice
     // Form (input validity)
     // inputs:
         // PickOne
