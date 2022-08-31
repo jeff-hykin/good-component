@@ -807,7 +807,7 @@ window.Elemental = Elemental // for debugging only
 
             // Creating the DOM object
             let divElement = document.createElement("div")
-            divElement.className = `toastify on ${this.options.className}`
+            divElement.className = `${toastify} ${toastOn} ${this.options.className}`
 
             // Positioning toast to left or right or center (default right)
             divElement.className += ` ${nameMapping[this.options.position]}`
@@ -937,7 +937,7 @@ window.Elemental = Elemental // for debugging only
         */
         _removeElement(toastElement) {
             // Hiding the element
-            toastElement.className = toastElement.className.replace(" on", "")
+            toastElement.className = toastElement.className.replace(` ${toastOn}`, "")
 
             // Removing the element from DOM after transition end
             window.setTimeout(() => {
