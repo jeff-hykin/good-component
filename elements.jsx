@@ -3,9 +3,13 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.asynciterable" />
 /// <reference lib="deno.ns" />
-import { html, css, Elemental, combineClasses } from "https://deno.land/x/elementalist@0.5.19/main/deno.js?code"
-import { capitalize, indent, toCamelCase, numberToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString } from "https://deno.land/x/good@0.5.15/string.js"
+import { html, css, Elemental, combineClasses } from "https://deno.land/x/elementalist@0.5.28/main/deno.js?code"
+import { capitalize, indent, toCamelCase, numberToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString } from "https://deno.land/x/good@0.7.8/string.js"
 import { sha256 } from "https://denopkg.com/chiefbiiko/sha256@v1.0.0/mod.ts"
+// emotion css (from skypack) for some reason deno can't bundle direct import: import { css, cx } from 'https://cdn.skypack.dev/@emotion/css'
+export { css, cx } from 'https://cdn.skypack.dev/-/@emotion/css@v11.10.5-uWGULTiBZCR27o2j9H2P/dist=es2019,mode=imports/optimized/@emotion/css.js';
+// export { default } from 'https://cdn.skypack.dev/-/@emotion/css@v11.10.5-uWGULTiBZCR27o2j9H2P/dist=es2019,mode=imports/optimized/@emotion/css.js';
+
 const hash = (value)=>sha256(value, 'utf-8', 'hex')
 
 // roadmap of tools:
@@ -517,7 +521,7 @@ window.Elemental = Elemental // for debugging only
     // 
     // TODO: remove the default colors
     // TODO: allow total override of styles/elements
-    import { css, cx } from 'https://cdn.skypack.dev/@emotion/css'
+    // import { css, cx } from 'https://cdn.skypack.dev/@emotion/css'
 
     const toastOn = css``
     const toastify = css`
