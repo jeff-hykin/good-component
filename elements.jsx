@@ -178,7 +178,7 @@ window.Elemental = Elemental // for debugging only
                 transition: all 0.4s ease-in-out 0s;
             }`
         ])
-        export function Column({ verticalAlignment, horizontalAlignment, ...arg }) {
+        export function Column({ verticalAlignment, horizontalAlignment, children, ...arg }) {
             // 
             // class
             // 
@@ -216,7 +216,7 @@ window.Elemental = Elemental // for debugging only
                 transition: all 0.4s ease-in-out 0s;
             }`
         ])
-        export function Row({ verticalAlignment, horizontalAlignment, ...arg }) {
+        export function Row({ verticalAlignment, horizontalAlignment, children, ...arg }) {
             // 
             // class
             // 
@@ -259,7 +259,7 @@ window.Elemental = Elemental // for debugging only
                 border: 0;
             }`,
         ])
-        export function Code(arg) {
+        export function Code({children, ...arg}) {
             // 
             // class
             // 
@@ -330,7 +330,7 @@ window.Elemental = Elemental // for debugging only
             // element
             // 
             return <button {...arg}>
-                {children}
+                {arg.children}
             </button>
         }
     
