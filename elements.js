@@ -3218,7 +3218,7 @@ const columnClass = createCssClass(`column`, [
                 transition: all 0.4s ease-in-out 0s;
             }`
 ]);
-function Column({ verticalAlignment , horizontalAlignment , ...arg }) {
+function Column({ verticalAlignment , horizontalAlignment , children , ...arg }) {
     arg = setupClassStyles(arg);
     arg.class = combineClasses(columnClass, arg.class);
     const justify = translateAlignment(verticalAlignment || "top");
@@ -3239,7 +3239,7 @@ const rowClass = createCssClass(`row`, [
                 transition: all 0.4s ease-in-out 0s;
             }`
 ]);
-function Row({ verticalAlignment , horizontalAlignment , ...arg }) {
+function Row({ verticalAlignment , horizontalAlignment , children , ...arg }) {
     arg = setupClassStyles(arg);
     arg.class = combineClasses(rowClass, arg.class);
     const justify = translateAlignment(horizontalAlignment || "left");
@@ -3265,7 +3265,7 @@ const codeClass = createCssClass(`code`, [
                 border: 0;
             }`, 
 ]);
-function Code(arg) {
+function Code({ children , ...arg }) {
     arg = setupClassStyles(arg);
     arg.class = combineClasses(codeClass, arg.class);
     return html("code", Object.assign({}, arg), children);
@@ -3304,7 +3304,7 @@ const buttonClass = createCssClass(`button`, [
 function Button(arg) {
     arg = setupClassStyles(arg);
     arg.class = combineClasses(buttonClass, arg.class);
-    return html("button", Object.assign({}, arg), children);
+    return html("button", Object.assign({}, arg), arg.children);
 }
 const checkboxClass = createCssClass(`checkbox`, [
     `{
