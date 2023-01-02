@@ -3,7 +3,7 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.asynciterable" />
 /// <reference lib="deno.ns" />
-import { html, css, Elemental, combineClasses } from "https://deno.land/x/elementalist@0.5.28/main/deno.js?code"
+import { html, css, Elemental, combineClasses } from "https://deno.land/x/elementalist@0.5.29/main/deno.js?code"
 import { capitalize, indent, toCamelCase, numberToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString } from "https://deno.land/x/good@0.7.8/string.js"
 import { sha256 } from "https://denopkg.com/chiefbiiko/sha256@v1.0.0/mod.ts"
 // emotion css (from skypack) for some reason deno can't bundle direct import: import { css, cx } from 'https://cdn.skypack.dev/@emotion/css'

@@ -801,10 +801,11 @@ class ElementalClass {
             for (const each of strings){
                 finalString += each;
                 if (values.length > 0) {
+                    const value = values.shift();
                     if (value instanceof Object) {
                         finalString += Elemental.css(value);
                     } else {
-                        finalString += `${values.shift()}`;
+                        finalString += `${value}`;
                     }
                 }
             }
