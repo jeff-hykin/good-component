@@ -84,6 +84,15 @@ window.Elemental = Elemental // for debugging only
         }
         return arg
     }
+    function mergeStyles(element, style) {
+        if (style) {
+            const helper = html`<div style=${style}/>`
+            const theyreActuallyKeys = Object.values(helper.style) 
+            for (const key of theyreActuallyKeys) {
+                element.style[key] = helper.style[key]
+            }
+        }
+    }
 
     const dynamicClasses = new Set()
     const createCssClass = (name, styles)=>{
