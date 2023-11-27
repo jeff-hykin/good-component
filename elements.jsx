@@ -480,10 +480,29 @@ window.Elemental = Elemental // for debugging only
 // 
     export const askForFiles = async ()=>{
         return new Promise((resolve, reject)=>{
+            let value = null
+            let waitValue
+            let hasResolved = false
             const cleanResolve = (returnValue)=>{
-                resolve(returnValue)
-                window.removeEventListener("focus", listener)
+                value = returnValue
+                if (hasResolved) {
+                    return
+                }
+                if (!waitValue && returnValue.length == 0){
+                    waitValue = setTimeout(()=>{
+                        if (!hasResolved) {
+                            hasResolved = true
+                            resolve(value)
+                        }
+                    }, 200)
+                } else {
+                    clearTimeout(waitValue)
+                    hasResolved = true
+                    resolve(value)
+                }
+                
                 try {
+                    window.removeEventListener("focus", listener)
                     helperElement.removeChild(filePicker)
                 } catch (error) {
                     
