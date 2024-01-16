@@ -3917,8 +3917,8 @@ var popUp = async ({ children, ...otherArgs }) => {
   helperElement.prepend(container);
   return container;
 };
-var toastOn = css``;
-var toastify = css`
+var toastOn = css2``;
+var toastify = css2`
         padding: 12px 20px;
         color: #ffffff;
         display: inline-block;
@@ -3937,7 +3937,7 @@ var toastify = css`
             opacity: 1;
         }
     `;
-var toastClose = css`
+var toastClose = css2`
         background: transparent;
         border: 0;
         color: white;
@@ -3947,7 +3947,7 @@ var toastClose = css`
         opacity: 0.4;
         padding: 0 5px;
     `;
-var toastifyRight = css`
+var toastifyRight = css2`
         right: 15px;
         @media only screen and (max-width: 360px) {
             margin-left: auto;
@@ -3957,7 +3957,7 @@ var toastifyRight = css`
             max-width: fit-content;
         }
     `;
-var toastifyLeft = css`
+var toastifyLeft = css2`
         left: 15px;
         @media only screen and (max-width: 360px) {
             margin-left: auto;
@@ -3967,22 +3967,22 @@ var toastifyLeft = css`
             max-width: fit-content;
         }
     `;
-var toastifyTop = css`
+var toastifyTop = css2`
         top: -150px;
     `;
-var toastifyBottom = css`
+var toastifyBottom = css2`
         bottom: -150px;
     `;
-var toastifyRounded = css`
+var toastifyRounded = css2`
         border-radius: 25px;
     `;
-var toastifyAvatar = css`
+var toastifyAvatar = css2`
         width: 1.5em;
         height: 1.5em;
         margin: -7px 5px;
         border-radius: 2px;
     `;
-var toastifyCenter = css`
+var toastifyCenter = css2`
         margin-left: auto;
         margin-right: auto;
         left: 0;
