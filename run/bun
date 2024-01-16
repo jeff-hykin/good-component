@@ -1,0 +1,89 @@
+#!/usr/bin/env -S deno run --allow-all
+import { FileSystem } from "https://deno.land/x/quickr@0.6.61/main/file_system.js"
+import { run, Stderr, Stdout } from "https://deno.land/x/quickr@0.6.61/main/run.js"
+
+import { build } from "https://deno.land/x/esbuild@v0.18.17/mod.js"
+// import { BuildOptions } from "https://deno.land/x/esbuild@v0.18.17/mod.js"
+import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.8.1/mod.ts"
+import { parse } from "https://deno.land/std@0.168.0/flags/mod.ts"
+import { Console, clearAnsiStylesFrom, black, white, red, green, blue, yellow, cyan, magenta, lightBlack, lightWhite, lightRed, lightGreen, lightBlue, lightYellow, lightMagenta, lightCyan, blackBackground, whiteBackground, redBackground, greenBackground, blueBackground, yellowBackground, magentaBackground, cyanBackground, lightBlackBackground, lightRedBackground, lightGreenBackground, lightYellowBackground, lightBlueBackground, lightMagentaBackground, lightCyanBackground, lightWhiteBackground, bold, reset, dim, italic, underline, inverse, strikethrough, gray, grey, lightGray, lightGrey, grayBackground, greyBackground, lightGrayBackground, lightGreyBackground, } from "https://deno.land/x/quickr@0.6.61/main/console.js"
+
+const bundle = async ({filePath,...options})=>{
+    const nodeBuiltinImports = [
+        "node:assert",
+        "node:buffer",
+        "node:child_process",
+        "node:cluster",
+        "node:crypto",
+        "node:dgram",
+        "node:dns",
+        "node:domain",
+        "node:events",
+        "node:fs",
+        "node:http",
+        "node:https",
+        "node:net",
+        "node:os",
+        "node:path",
+        "node:punycode",
+        "node:querystring",
+        "node:readline",
+        "node:stream",
+        "node:string_decoder",
+        "node:timers",
+        "node:tls",
+        "node:tty",
+        "node:url",
+        "node:util",
+        "node:v8",
+        "node:vm",
+        "node:zlib",
+    ]
+
+    const stringArrays = [
+        "external",
+        "resolveExtensions",
+        "mainFields",
+        "conditions",
+        "inject",
+        "entryPoints",
+        "nodePaths",
+    ]
+    return new Promise((resolve, reject)=>{
+        build({
+            bundle: true,
+            entryPoints: [filePath],
+            jsxFactory: "h",
+            format: "esm",
+            plugins: [
+                {
+                    "name": "exit-on-build",
+                    "setup": (build) => {
+                        build.onEnd((result) => {
+                            if (result.errors.length> 0) {
+                                reject(result.errors)
+                            } else {
+                                resolve(result)
+                            }
+                        })
+                    },
+                },
+                ...denoPlugins()
+            ],
+            external: [
+                // ...nodeBuiltinImports,
+            ],
+            ...options,
+        })
+    })
+}
+
+try {
+    await bundle({
+        filePath: `${FileSystem.thisFolder}/../elements.jsx`,
+        outfile: `${FileSystem.thisFolder}/../elements.js`,
+    })
+} catch (error) {
+    Deno.exit(1)
+}
+Deno.exit()

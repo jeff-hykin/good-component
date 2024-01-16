@@ -2160,6 +2160,71 @@ var keyframes = emotionCss_cjs.keyframes;
 var merge = emotionCss_cjs.merge;
 var sheet2 = emotionCss_cjs.sheet;
 
+// main/helpers/setup_styles.js
+var setupStyles = (arg, styles) => {
+  if (arg.styles) {
+    arg.styles = `${styles};${css(arg.styles)};`;
+  } else {
+    arg.styles = styles;
+  }
+  return arg;
+};
+var setup_styles_default = setupStyles;
+
+// main/helpers/create_css_class.js
+var hash2 = (value) => sha256(value, "utf-8", "hex");
+var dynamicClasses = /* @__PURE__ */ new Set();
+var helperStyle = document.createElement("style");
+var createCssClass = (name, styles) => {
+  const classStyles = [styles].flat(Infinity);
+  const key = `${name}${hash2(`${classStyles}`)}`;
+  if (!dynamicClasses.has(key)) {
+    dynamicClasses.add(key);
+    for (const each of classStyles) {
+      helperStyle.innerHTML += `.${key}${each}`;
+    }
+  }
+  return key;
+};
+createCssClass.helperStyle = helperStyle;
+createCssClass.dynamicClasses = dynamicClasses;
+var create_css_class_default = createCssClass;
+
+// main/helpers/combine_classes.js
+var combineClasses = (...classes) => {
+  classes = classes.filter((each) => each != null);
+  let classesFinalList = [];
+  for (let eachEntry of classes) {
+    if (typeof eachEntry == "string") {
+      eachEntry = eachEntry.split(" ");
+    }
+    if (eachEntry instanceof Array) {
+      eachEntry = eachEntry.flat(Infinity);
+      for (let eachName of eachEntry) {
+        classesFinalList.push(eachName);
+      }
+    } else if (eachEntry instanceof Object) {
+      for (const [className, enabled] of Object.entries(eachEntry)) {
+        if (enabled) {
+          classesFinalList.push(className);
+        }
+      }
+    }
+  }
+  return classesFinalList;
+};
+var combine_classes_default = combineClasses;
+
+// main/helpers/setup_class_styles.js
+var setupClassStyles = (arg) => {
+  if (arg.classStyles) {
+    const className = create_css_class_default(``, arg.classStyles);
+    arg.class = combine_classes_default(className, arg.class);
+  }
+  return arg;
+};
+var setup_class_styles_default = setupClassStyles;
+
 // https://esm.sh/v135/showdown@2.1.0/denonext/showdown.mjs
 var ae = Object.create;
 var F = Object.defineProperty;
@@ -3464,61 +3529,10 @@ var Markdown = ({ text }) => {
 var markdown_default = Markdown;
 
 // elements.jsx
-var hash2 = (value) => sha256(value, "utf-8", "hex");
-var combineClasses = (...classes) => {
-  classes = classes.filter((each) => each != null);
-  let classesFinalList = [];
-  for (let eachEntry of classes) {
-    if (typeof eachEntry == "string") {
-      eachEntry = eachEntry.split(" ");
-    }
-    if (eachEntry instanceof Array) {
-      eachEntry = eachEntry.flat(Infinity);
-      for (let eachName of eachEntry) {
-        classesFinalList.push(eachName);
-      }
-    } else if (eachEntry instanceof Object) {
-      for (const [className, enabled] of Object.entries(eachEntry)) {
-        if (enabled) {
-          classesFinalList.push(className);
-        }
-      }
-    }
-  }
-  return classesFinalList;
-};
 var helperElement = document.createElement("div");
 helperElement.setAttribute("note", "STUFF WILL BREAK IF YOU DELETE ME");
 helperElement.setAttribute("style", "position: fixed; top: 0; left: 0;");
 window.addEventListener("load", () => document.body.prepend(helperElement));
-var helperStyle = document.createElement("style");
-var setupStyles = (arg, styles) => {
-  if (arg.styles) {
-    arg.styles = `${styles};${css(arg.styles)};`;
-  } else {
-    arg.styles = styles;
-  }
-  return arg;
-};
-var dynamicClasses = /* @__PURE__ */ new Set();
-var createCssClass = (name, styles) => {
-  const classStyles = [styles].flat(Infinity);
-  const key = `${name}${hash2(`${classStyles}`)}`;
-  if (!dynamicClasses.has(key)) {
-    dynamicClasses.add(key);
-    for (const each of classStyles) {
-      helperStyle.innerHTML += `.${key}${each}`;
-    }
-  }
-  return key;
-};
-var setupClassStyles = (arg) => {
-  if (arg.classStyles) {
-    const className = createCssClass(``, arg.classStyles);
-    arg.class = combineClasses(className, arg.class);
-  }
-  return arg;
-};
 var translateAlignment = (name) => {
   if (name == "top" || name == "left") {
     return "flex-start";
@@ -3528,7 +3542,7 @@ var translateAlignment = (name) => {
     return name;
   }
 };
-var columnClass = createCssClass(`column`, [
+var columnClass = create_css_class_default(`column`, [
   `{
                 display: flex;
                 flex-direction: column;
@@ -3536,12 +3550,12 @@ var columnClass = createCssClass(`column`, [
             }`
 ]);
 function Column({ verticalAlignment, horizontalAlignment, children, ...arg }) {
-  arg = setupClassStyles(arg);
-  arg.class = combineClasses(columnClass, arg.class);
+  arg = setup_class_styles_default(arg);
+  arg.class = combine_classes_default(columnClass, arg.class);
   const justify = translateAlignment(verticalAlignment || "top");
   const align = translateAlignment(horizontalAlignment || "left");
   const verticalText = verticalAlignment == "center" ? "middle" : verticalAlignment;
-  arg = setupStyles(arg, `
+  arg = setup_styles_default(arg, `
                 justify-content: ${justify};
                 align-items: ${align};
                 text-align: ${horizontalAlignment};
@@ -3549,7 +3563,7 @@ function Column({ verticalAlignment, horizontalAlignment, children, ...arg }) {
             `);
   return /* @__PURE__ */ html("div", { ...arg }, children);
 }
-var rowClass = createCssClass(`row`, [
+var rowClass = create_css_class_default(`row`, [
   `{
                 display: flex;
                 flex-direction: row;
@@ -3557,12 +3571,12 @@ var rowClass = createCssClass(`row`, [
             }`
 ]);
 function Row({ verticalAlignment, horizontalAlignment, children, ...arg }) {
-  arg = setupClassStyles(arg);
-  arg.class = combineClasses(rowClass, arg.class);
+  arg = setup_class_styles_default(arg);
+  arg.class = combine_classes_default(rowClass, arg.class);
   const justify = translateAlignment(horizontalAlignment || "left");
   const align = translateAlignment(verticalAlignment || "top");
   const verticalText = verticalAlignment == "center" ? "middle" : verticalAlignment;
-  arg = setupStyles(arg, `
+  arg = setup_styles_default(arg, `
                 justify-content: ${justify};
                 align-items: ${align};
                 text-align: ${horizontalAlignment};
@@ -3570,7 +3584,7 @@ function Row({ verticalAlignment, horizontalAlignment, children, ...arg }) {
             `);
   return /* @__PURE__ */ html("div", { ...arg }, children);
 }
-var codeClass = createCssClass(`code`, [
+var codeClass = create_css_class_default(`code`, [
   // these mostly exist to create similar behavior across browsers 
   `{
                 white-space: pre;
@@ -3584,11 +3598,11 @@ var codeClass = createCssClass(`code`, [
             }`
 ]);
 function Code({ children, ...arg }) {
-  arg = setupClassStyles(arg);
-  arg.class = combineClasses(codeClass, arg.class);
+  arg = setup_class_styles_default(arg);
+  arg.class = combine_classes_default(codeClass, arg.class);
   return /* @__PURE__ */ html("code", { ...arg }, children);
 }
-var inputClass = createCssClass(`input`, [
+var inputClass = create_css_class_default(`input`, [
   // these merely exist to create similar behavior across browsers 
   `{
                 margin: 0;
@@ -3603,11 +3617,11 @@ var inputClass = createCssClass(`input`, [
   `[type=month]          { -webkit-appearance: listbox; }`
 ]);
 function Input(arg) {
-  arg = setupClassStyles(arg);
-  arg.class = combineClasses(inputClass, arg.class);
+  arg = setup_class_styles_default(arg);
+  arg.class = combine_classes_default(inputClass, arg.class);
   return /* @__PURE__ */ html("input", { ...arg });
 }
-var buttonClass = createCssClass(`button`, [
+var buttonClass = create_css_class_default(`button`, [
   // these merely exist to create similar behavior across browsers 
   `{
                 border-radius: 0;
@@ -3622,11 +3636,11 @@ var buttonClass = createCssClass(`button`, [
   `::-moz-focus-inner   { border-style: none; padding: 0;}`
 ]);
 function Button(arg) {
-  arg = setupClassStyles(arg);
-  arg.class = combineClasses(buttonClass, arg.class);
+  arg = setup_class_styles_default(arg);
+  arg.class = combine_classes_default(buttonClass, arg.class);
   return /* @__PURE__ */ html("button", { ...arg }, arg.children);
 }
-var checkboxClass = createCssClass(`checkbox`, [
+var checkboxClass = create_css_class_default(`checkbox`, [
   // these merely exist to create similar behavior across browsers 
   `{
                 box-sizing: border-box;
@@ -3634,8 +3648,8 @@ var checkboxClass = createCssClass(`checkbox`, [
             }`
 ]);
 function Checkbox(arg) {
-  arg = setupClassStyles(arg);
-  arg.class = combineClasses(inputClass, checkboxClass, arg.class);
+  arg = setup_class_styles_default(arg);
+  arg.class = combine_classes_default(inputClass, checkboxClass, arg.class);
   const element2 = /* @__PURE__ */ html("input", { type: "checkbox", ...arg });
   Object.defineProperties(element2, {
     value: {
@@ -3656,13 +3670,13 @@ function Checkbox(arg) {
   return element2;
 }
 var originalDisplayValueSymbol = Symbol("originalDisplayValue");
-var dropdownPlaceholder = createCssClass(`dropdownPlaceholder`, [
+var dropdownPlaceholder = create_css_class_default(`dropdownPlaceholder`, [
   // these merely exist to create similar behavior across browsers 
   `{
                 overflow: visible;
             }`
 ]);
-var dropdownList = createCssClass(`dropdownList`, [
+var dropdownList = create_css_class_default(`dropdownList`, [
   // these merely exist to create similar behavior across browsers 
   `{
                 overflow: auto;
@@ -3671,8 +3685,8 @@ var dropdownList = createCssClass(`dropdownList`, [
             }`
 ]);
 function Dropdown({ children, ...arg }) {
-  arg = setupClassStyles(arg);
-  arg.class = combineClasses(dropdownList, arg.class);
+  arg = setup_class_styles_default(arg);
+  arg.class = combine_classes_default(dropdownList, arg.class);
   const placeholder = /* @__PURE__ */ html(Column, { class: dropdownPlaceholder });
   const listOfOptions = /* @__PURE__ */ html(Column, { class: dropdownList, ...arg }, children);
   for (const each of listOfOptions.children) {
@@ -3773,7 +3787,7 @@ var popUp = async ({ children, ...otherArgs }) => {
   const container = /* @__PURE__ */ html(
     "div",
     {
-      class: combineClasses(classIds.popUp, otherArgs.class),
+      class: combine_classes_default(classIds.popUp, otherArgs.class),
       onClick: (event) => {
         if (event.target == container) {
           container.remove();

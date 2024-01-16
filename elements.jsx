@@ -8,33 +8,6 @@ import { sha256 } from "https://denopkg.com/chiefbiiko/sha256@v1.0.0/mod.ts"
 export { css, cx } from 'https://cdn.skypack.dev/-/@emotion/css@v11.10.5-uWGULTiBZCR27o2j9H2P/dist=es2019,mode=imports/optimized/@emotion/css.js';
 // export { default } from 'https://cdn.skypack.dev/-/@emotion/css@v11.10.5-uWGULTiBZCR27o2j9H2P/dist=es2019,mode=imports/optimized/@emotion/css.js';
 
-const hash = (value)=>sha256(value, 'utf-8', 'hex')
-const kebabCase = (string)=>string.replace(/[a-z]([A-Z])(?=[a-z])/g, (each)=>`${each[0]}-${each.slice(1).toLowerCase()}`)
-const combineClasses = (...classes) => {
-    classes = classes.filter(each=>each!=null)
-    let classesFinalList = []
-    for (let eachEntry of classes) {
-        // handle strings
-        if (typeof eachEntry == 'string') {
-            eachEntry = eachEntry.split(" ")
-        }
-        // handle lists
-        if (eachEntry instanceof Array) {
-            eachEntry = eachEntry.flat(Infinity)
-            for (let eachName of eachEntry) {
-                classesFinalList.push(eachName)
-            }
-        // handle objects
-        } else if (eachEntry instanceof Object) {
-            for (const [className, enabled] of Object.entries(eachEntry)) {
-                if (enabled) {
-                    classesFinalList.push(className)
-                }
-            }
-        }
-    }
-    return classesFinalList
-}
 
 // roadmap of tools:
     // done: Code
@@ -97,58 +70,6 @@ const combineClasses = (...classes) => {
     helperElement.setAttribute("note", "STUFF WILL BREAK IF YOU DELETE ME")
     helperElement.setAttribute("style", "position: fixed; top: 0; left: 0;")
     window.addEventListener("load", ()=>document.body.prepend(helperElement))
-    const helperStyle = document.createElement("style")
-    const setupStyles = (arg, styles)=>{
-        if (arg.styles) {
-            arg.styles = `${styles};${css(arg.styles)};`
-        } else {
-            arg.styles = styles
-        }
-        return arg
-    }
-    function mergeStyles(element, style) {
-        if (style) {
-            const helper = document.createElement("div")
-            if (typeof style != "string" && style instanceof Object) {
-                let finalString = ""
-                for (const [key, value] of Object.entries(style)) {
-                    if (value != null) {
-                        finalString += `${kebabCase(key)}: ${value};`
-                    }
-                }
-                style = finalString
-            }
-            if (typeof style == 'string') {
-                helper.style.setAttribute("style", style)
-            }
-            const theyreActuallyKeys = Object.values(helper.style) 
-            for (const key of theyreActuallyKeys) {
-                element.style[key] = helper.style[key]
-            }
-        }
-    }
-
-    const dynamicClasses = new Set()
-    const createCssClass = (name, styles)=>{
-        const classStyles = [styles].flat(Infinity)
-        const key = `${name}${hash(`${classStyles}`)}`
-        if (!dynamicClasses.has(key)) {
-            dynamicClasses.add(key)
-            for (const each of classStyles) {
-                helperStyle.innerHTML += `.${key}${each}`
-            }
-        }
-        return key
-    }
-    const setupClassStyles = (arg)=>{
-        if (arg.classStyles) {
-            const className = createCssClass(``,arg.classStyles)
-            arg.class = combineClasses(className, arg.class)
-        }
-        return arg
-    }
-
-
     const translateAlignment = (name) => {
         if (name == "top" || name == "left") {
             return "flex-start"
@@ -158,52 +79,7 @@ const combineClasses = (...classes) => {
             return name
         }
     }
-
-    const hoverStyleHelper = ({ element, hoverStyle }) => {
-        if (hoverStyle) {
-            let hoverStyleAlreadyActive = false
-            const helper = document.createElement("div")
-            const hoverStyleAsString = `${css(hoverStyle)}`
-            helper.style.cssText = hoverStyleAsString // style string values change when attached to actual elements
-            const styleObject = {}
-            const keys = Object.values(helper.style) // yes I know it says keys= .values() but its true
-            for (const key of keys) {
-                styleObject[key] = helper.style[key]
-            }
-            const valuesBefore = {}
-            
-            element.addEventListener("mouseover", ()=>{
-                if (!hoverStyleAlreadyActive) {
-                    hoverStyleAlreadyActive = true
-                    for (const key of keys) {
-                        valuesBefore[key] = element.style[key]
-                    }
-                    element.style.cssText += hoverStyleAsString
-                }
-            })
-
-            element.addEventListener("mouseout", ()=>{
-                if (hoverStyleAlreadyActive) {
-                    hoverStyleAlreadyActive = false
-                    const style = element.style
-                    const mixinStyleObject = {}
-                    for (const [key, value] of Object.entries(styleObject)) {
-                        // if it wasn't changed
-                        if (style[key] == value) {
-                            // then restore the old value
-                            mixinStyleObject[key] = valuesBefore[key]
-                        }
-                    }
-                    const mixinStyles = `${css(mixinStyleObject)}`
-                    style.cssText += mixinStyles           // this is needed for values with !important
-                    Object.assign(style, mixinStyleObject) // needed for empty values 
-                }
-            })
-        }
-    }
-
-
-
+    import { setupStyles, createCssClass, setupClassStyles, hoverStyleHelper, combineClasses, mergeStyles } from "./main/helpers.js"
 // 
 // 
 // 
