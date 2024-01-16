@@ -1,5 +1,4 @@
-import { sha256 } from "https://denopkg.com/chiefbiiko/sha256@v1.0.0/mod.ts"
-const hash = (value)=>sha256(value, 'utf-8', 'hex')
+import hash from "../generic_tools/hash.js"
 
 export const dynamicClasses = new Set()
 export const helperStyle = document.createElement("style")
