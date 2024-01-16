@@ -4,7 +4,7 @@
 /// <reference lib="dom.asynciterable" />
 /// <reference lib="deno.ns" />
 import { html, css, Elemental, combineClasses } from "https://deno.land/x/elementalist@0.5.29/main/deno.js?code"
-import { capitalize, indent, toCamelCase, numberToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString } from "https://deno.land/x/good@0.7.8/string.js"
+import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString } from "https://deno.land/x/good@0.7.8/string.js"
 import { sha256 } from "https://denopkg.com/chiefbiiko/sha256@v1.0.0/mod.ts"
 // emotion css (from skypack) for some reason deno can't bundle direct import: import { css, cx } from 'https://cdn.skypack.dev/@emotion/css'
 export { css, cx } from 'https://cdn.skypack.dev/-/@emotion/css@v11.10.5-uWGULTiBZCR27o2j9H2P/dist=es2019,mode=imports/optimized/@emotion/css.js';
@@ -470,6 +470,17 @@ window.Elemental = Elemental // for debugging only
             onOptionClickOrInput({target: args.default})
 
             return listOfOptions
+        }
+        
+        // all components
+        export const components = {
+            Column,
+            Row,
+            Code,
+            Input,
+            Button,
+            Checkbox,
+            Dropdown,
         }
 // 
 // 
@@ -1069,4 +1080,43 @@ window.Elemental = Elemental // for debugging only
 
             return "0px"
         }
+    }
+    
+    /**
+    * Init the Toastify class
+    * @example
+    *     showToast("This is a toast", {
+    *         duration: 3000
+    *     })
+    *
+    * @param {string} message - Message to be displayed in the toast
+    * @param {ToastifyConfigurationObject} options - The configuration object to configure Toastify
+    * @param {Element} [options.node] - Provide a node to be mounted inside the toast. node takes higher precedence over text
+    * @param {number} [options.duration=3000] - Duration for which the toast should be displayed. -1 for permanent toast
+    * @param {string} [options.selector] - CSS Selector on which the toast should be added
+    * @param {url} [options.destination] - URL to which the browser should be navigated on click of the toast
+    * @param {boolean} [options.newWindow=false] - Decides whether the destination should be opened in a new window or not
+    * @param {boolean} [options.close=false] - To show the close icon or not
+    * @param {string} [options.gravity=toastify-top] - To show the toast from top or bottom
+    * @param {string} [options.position=right] - To show the toast on left or right
+    * @param {string} [options.backgroundColor] - Sets the background color of the toast (To be deprecated)
+    * @param {url} [options.avatar] - Image/icon to be shown before text
+    * @param {string} [options.className] - Ability to provide custom class name for further customization
+    * @param {boolean} [options.stopOnFocus] - To stop timer when hovered over the toast (Only if duration is set)
+    * @param {Function} [options.callback] - Invoked when the toast is dismissed
+    * @param {Function} [options.onClick] - Invoked when the toast is clicked
+    * @param {Object} [options.offset] - Ability to add some offset to axis
+    * @param {boolean} [options.escapeMarkup=true] - Toggle the default behavior of escaping HTML markup
+    * @param {string} [options.ariaLive] - Announce the toast to screen readers
+    * @param {Object} [options.style] - Use the HTML DOM style property to add styles to toast
+    */
+    export const showToast = (message, options)=>{
+        const toast = new Toastify({
+            position: 'right',
+            gravity: "bottom",
+            ...options,
+            text: message,
+        })
+        toast.showToast()
+        return toast
     }
