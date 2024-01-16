@@ -3,14 +3,38 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.asynciterable" />
 /// <reference lib="deno.ns" />
-import { html, css, Elemental, combineClasses } from "https://deno.land/x/elementalist@0.5.29/main/deno.js?code"
-import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString } from "https://deno.land/x/good@0.7.8/string.js"
 import { sha256 } from "https://denopkg.com/chiefbiiko/sha256@v1.0.0/mod.ts"
 // emotion css (from skypack) for some reason deno can't bundle direct import: import { css, cx } from 'https://cdn.skypack.dev/@emotion/css'
 export { css, cx } from 'https://cdn.skypack.dev/-/@emotion/css@v11.10.5-uWGULTiBZCR27o2j9H2P/dist=es2019,mode=imports/optimized/@emotion/css.js';
 // export { default } from 'https://cdn.skypack.dev/-/@emotion/css@v11.10.5-uWGULTiBZCR27o2j9H2P/dist=es2019,mode=imports/optimized/@emotion/css.js';
 
 const hash = (value)=>sha256(value, 'utf-8', 'hex')
+const kebabCase = (string)=>string.replace(/[a-z]([A-Z])(?=[a-z])/g, (each)=>`${each[0]}-${each.slice(1).toLowerCase()}`)
+const combineClasses = (...classes) => {
+    classes = classes.filter(each=>each!=null)
+    let classesFinalList = []
+    for (let eachEntry of classes) {
+        // handle strings
+        if (typeof eachEntry == 'string') {
+            eachEntry = eachEntry.split(" ")
+        }
+        // handle lists
+        if (eachEntry instanceof Array) {
+            eachEntry = eachEntry.flat(Infinity)
+            for (let eachName of eachEntry) {
+                classesFinalList.push(eachName)
+            }
+        // handle objects
+        } else if (eachEntry instanceof Object) {
+            for (const [className, enabled] of Object.entries(eachEntry)) {
+                if (enabled) {
+                    classesFinalList.push(className)
+                }
+            }
+        }
+    }
+    return classesFinalList
+}
 
 // roadmap of tools:
     // done: Code
@@ -59,8 +83,6 @@ const hash = (value)=>sha256(value, 'utf-8', 'hex')
         // mp4/avi source link
 
 
-window.Elemental = Elemental // for debugging only
-
 // 
 // 
 // Helpers
@@ -86,7 +108,19 @@ window.Elemental = Elemental // for debugging only
     }
     function mergeStyles(element, style) {
         if (style) {
-            const helper = html`<div style=${style}/>`
+            const helper = document.createElement("div")
+            if (typeof style != "string" && style instanceof Object) {
+                let finalString = ""
+                for (const [key, value] of Object.entries(style)) {
+                    if (value != null) {
+                        finalString += `${kebabCase(key)}: ${value};`
+                    }
+                }
+                style = finalString
+            }
+            if (typeof style == 'string') {
+                helper.style.setAttribute("style", style)
+            }
             const theyreActuallyKeys = Object.values(helper.style) 
             for (const key of theyreActuallyKeys) {
                 element.style[key] = helper.style[key]
