@@ -506,6 +506,8 @@ const combineClasses = (...classes) => {
             return listOfOptions
         }
         
+        import { Markdown } from "./main/components.js"
+        
         // all components
         export const components = {
             Column,
@@ -515,6 +517,7 @@ const combineClasses = (...classes) => {
             Button,
             Checkbox,
             Dropdown,
+            Markdown,
         }
 // 
 // 
