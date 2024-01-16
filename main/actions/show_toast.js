@@ -1,7 +1,9 @@
-import { css, cx } from 'https://esm.sh/@emotion/css@v11.10.5'
+import { css as csss, cx } from 'https://esm.sh/@emotion/css@v11.10.5'
 
-const toastOn = css``
-const toastify = css`
+// TODO: remove the default colors
+// TODO: allow total override of styles/elements
+const toastOn = csss``
+const toastify = csss`
     padding: 12px 20px;
     color: #ffffff;
     display: inline-block;
@@ -22,7 +24,7 @@ const toastify = css`
 `
 
 
-const toastClose = css`
+const toastClose = csss`
     background: transparent;
     border: 0;
     color: white;
@@ -33,7 +35,7 @@ const toastClose = css`
     padding: 0 5px;
 `
 
-const toastifyRight = css`
+const toastifyRight = csss`
     right: 15px;
     @media only screen and (max-width: 360px) {
         margin-left: auto;
@@ -44,7 +46,7 @@ const toastifyRight = css`
     }
 `
 
-const toastifyLeft = css`
+const toastifyLeft = csss`
     left: 15px;
     @media only screen and (max-width: 360px) {
         margin-left: auto;
@@ -55,26 +57,26 @@ const toastifyLeft = css`
     }
 `
 
-const toastifyTop = css`
+const toastifyTop = csss`
     top: 50px;
 `
 
-const toastifyBottom = css`
+const toastifyBottom = csss`
     bottom: 50px;
 `
 
-const toastifyRounded = css`
+const toastifyRounded = csss`
     border-radius: 25px;
 `
 
-const toastifyAvatar = css`
+const toastifyAvatar = csss`
     width: 1.5em;
     height: 1.5em;
     margin: -7px 5px;
     border-radius: 2px;
 `
 
-const toastifyCenter = css`
+const toastifyCenter = csss`
     margin-left: auto;
     margin-right: auto;
     left: 0;
@@ -125,7 +127,7 @@ const nameMapping = {
 * @property {Object} style - Use the HTML DOM style property to add styles to toast
 */
 
-class Toastify {
+export class Toastify {
     defaults = {
         oldestFirst: true,
         text: "Toastify is awesome!",
