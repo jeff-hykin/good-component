@@ -4,567 +4,6 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// https://deno.land/x/good@1.4.4.2/value.js
-var typedArrayClasses = [
-  Uint16Array,
-  Uint32Array,
-  Uint8Array,
-  Uint8ClampedArray,
-  Int16Array,
-  Int32Array,
-  Int8Array,
-  Float32Array,
-  Float64Array,
-  globalThis.BigInt64Array,
-  globalThis.BigUint64Array
-].filter((each) => each);
-var copyableClasses = /* @__PURE__ */ new Set([RegExp, Date, URL, ...typedArrayClasses, globalThis.ArrayBuffer, globalThis.DataView]);
-var IteratorPrototype = Object.getPrototypeOf(Object.getPrototypeOf([][Symbol.iterator]()));
-var ArrayIterator = Object.getPrototypeOf([][Symbol.iterator]);
-var MapIterator = Object.getPrototypeOf((/* @__PURE__ */ new Map())[Symbol.iterator]);
-var SetIterator = Object.getPrototypeOf((/* @__PURE__ */ new Set())[Symbol.iterator]);
-var AsyncFunction = class {
-};
-var GeneratorFunction = class {
-};
-var AsyncGeneratorFunction = class {
-};
-var SyncGenerator = class {
-};
-var AsyncGenerator = class {
-};
-try {
-  AsyncFunction = eval("(async function(){}).constructor");
-  GeneratorFunction = eval("(function*(){}).constructor");
-  AsyncGeneratorFunction = eval("(async function*(){}).constructor");
-  SyncGenerator = eval("((function*(){})()).constructor");
-  AsyncGenerator = eval("((async function*(){})()).constructor");
-} catch (error) {
-}
-var isPrimitive = (value) => !(value instanceof Object);
-var isPureObject = (value) => value instanceof Object && Object.getPrototypeOf(value).constructor == Object;
-var isPracticallyPrimitive = (value) => isPrimitive(value) || value instanceof Date || value instanceof RegExp || value instanceof URL;
-var isBuiltInIterator = (value) => IteratorPrototype.isPrototypeOf(value);
-var isGeneratorType = (value) => {
-  if (value instanceof Object) {
-    if (isBuiltInIterator(value)) {
-      return true;
-    }
-    const constructor = value.constructor;
-    return constructor == SyncGenerator || constructor == AsyncGenerator;
-  }
-  return false;
-};
-var isAsyncIterable = function(value) {
-  return value && typeof value[Symbol.asyncIterator] === "function";
-};
-var isSyncIterable = function(value) {
-  return value && typeof value[Symbol.iterator] === "function";
-};
-var isIterableObjectOrContainer = function(value) {
-  return value instanceof Object && (typeof value[Symbol.iterator] == "function" || typeof value[Symbol.asyncIterator] === "function");
-};
-var isTechnicallyIterable = function(value) {
-  return value instanceof Object || typeof value == "string";
-};
-var isSyncIterableObjectOrContainer = function(value) {
-  return value instanceof Object && typeof value[Symbol.iterator] == "function";
-};
-var deepCopySymbol = Symbol.for("deepCopy");
-var clonedFromSymbol = Symbol();
-var getThis = Symbol();
-Object.getPrototypeOf(function() {
-})[getThis] = function() {
-  return this;
-};
-function deepCopyInner(value, valueChain = [], originalToCopyMap = /* @__PURE__ */ new Map()) {
-  valueChain.push(value);
-  if (value == null) {
-    return value;
-  }
-  if (!(value instanceof Object)) {
-    return value;
-  }
-  if (originalToCopyMap.has(value)) {
-    return originalToCopyMap.get(value);
-  }
-  if (value[deepCopySymbol] instanceof Function) {
-    const clonedValue = value[deepCopySymbol](originalToCopyMap);
-    originalToCopyMap.set(value, clonedValue);
-    return clonedValue;
-  }
-  if (isGeneratorType(value)) {
-    throw Error(`Sadly built-in generators cannot be deep copied.
-And I found a generator along this path:
-${valueChain.reverse().map((each) => `${each},
-`)}`);
-  }
-  let object, theThis, thisCopy;
-  if (value instanceof Date) {
-    object = new Date(value.getTime());
-  } else if (value instanceof RegExp) {
-    object = new RegExp(value);
-  } else if (value instanceof URL) {
-    object = new URL(value);
-  } else if (value instanceof Function) {
-    theThis = value[getThis]();
-    object = value.bind(theThis);
-  } else if (copyableClasses.has(value.constructor)) {
-    object = new value.constructor(value);
-  } else if (value instanceof Array) {
-    object = [];
-  } else if (value instanceof Set) {
-    object = /* @__PURE__ */ new Set();
-  } else if (value instanceof Map) {
-    object = /* @__PURE__ */ new Map();
-  }
-  originalToCopyMap.set(value, object);
-  if (object instanceof Function) {
-    thisCopy = deepCopyInner(theThis, valueChain, originalToCopyMap);
-    object = object.bind(thisCopy);
-  }
-  const output = object;
-  try {
-    output.constructor = value.constructor;
-  } catch (error) {
-  }
-  Object.setPrototypeOf(output, Object.getPrototypeOf(value));
-  const propertyDefinitions = {};
-  for (const [key, description] of Object.entries(Object.getOwnPropertyDescriptors(value))) {
-    const { value: value2, get, set, ...options } = description;
-    const getIsFunc = get instanceof Function;
-    const setIsFunc = set instanceof Function;
-    if (getIsFunc || setIsFunc) {
-      propertyDefinitions[key] = {
-        ...options,
-        get: get ? function(...args2) {
-          return get.apply(output, args2);
-        } : void 0,
-        set: set ? function(...args2) {
-          return set.apply(output, args2);
-        } : void 0
-      };
-    } else {
-      if (key == "length" && output instanceof Array) {
-        continue;
-      }
-      propertyDefinitions[key] = {
-        ...options,
-        value: deepCopyInner(value2, valueChain, originalToCopyMap)
-      };
-    }
-  }
-  Object.defineProperties(output, propertyDefinitions);
-  return output;
-}
-var deepCopy = (value) => deepCopyInner(value);
-var shallowSortObject = (obj) => {
-  return Object.keys(obj).sort().reduce(
-    (newObj, key) => {
-      newObj[key] = obj[key];
-      return newObj;
-    },
-    {}
-  );
-};
-var deepSortObject = (obj, seen = /* @__PURE__ */ new Map()) => {
-  if (!(obj instanceof Object)) {
-    return obj;
-  } else if (seen.has(obj)) {
-    return seen.get(obj);
-  } else {
-    if (obj instanceof Array) {
-      const sortedChildren = [];
-      seen.set(obj, sortedChildren);
-      for (const each of obj) {
-        sortedChildren.push(deepSortObject(each, seen));
-      }
-      return sortedChildren;
-    } else {
-      const sorted = {};
-      seen.set(obj, sorted);
-      for (const eachKey of Object.keys(obj).sort()) {
-        sorted[eachKey] = deepSortObject(obj[eachKey], seen);
-      }
-      return sorted;
-    }
-  }
-};
-var stableStringify = (value, ...args2) => {
-  return JSON.stringify(deepSortObject(value), ...args2);
-};
-var allKeys = function(obj) {
-  let keys = [];
-  if (obj == null) {
-    return [];
-  }
-  if (!(obj instanceof Object)) {
-    obj = Object.getPrototypeOf(obj);
-  }
-  while (obj) {
-    keys = keys.concat(Reflect.ownKeys(obj));
-    obj = Object.getPrototypeOf(obj);
-  }
-  return keys;
-};
-var ownKeyDescriptions = Object.getOwnPropertyDescriptors;
-var allKeyDescriptions = function(value, options = { includingBuiltin: false }) {
-  var { includingBuiltin } = { ...options };
-  let descriptions = [];
-  if (value == null) {
-    return {};
-  }
-  if (!(value instanceof Object)) {
-    value = Object.getPrototypeOf(value);
-  }
-  const rootPrototype = Object.getPrototypeOf({});
-  let prevObj;
-  while (value && value != prevObj) {
-    if (!includingBuiltin && value == rootPrototype) {
-      break;
-    }
-    descriptions = descriptions.concat(Object.entries(Object.getOwnPropertyDescriptors(value)));
-    prevObj = value;
-    value = Object.getPrototypeOf(value);
-  }
-  descriptions.reverse();
-  return Object.fromEntries(descriptions);
-};
-
-// https://deno.land/x/elementalist@0.5.29/main/deno.js?code
-var e = "\uE000";
-var t = "\uE001";
-function o(r2) {
-  var p2, a, l, s, c = arguments, i = this, n = 0, d = [], h = 0, u = [], f = 0;
-  d.root = true;
-  var g = function(e2, o2, r3) {
-    void 0 === o2 && (o2 = []);
-    var p3 = 0;
-    return (e2 = r3 || e2 !== t ? e2.replace(/\ue001/g, (e3) => u[f++]) : u[f++].slice(1, -1)) ? (e2.replace(/\ue000/g, (t2, r4) => (r4 && o2.push(e2.slice(p3, r4)), p3 = r4 + 1, o2.push(c[++h]))), p3 < e2.length && o2.push(e2.slice(p3)), o2.length > 1 ? o2 : o2[0]) : e2;
-  }, m = () => {
-    [d, s, ...p2] = d, d.push(i(s, ...p2));
-  };
-  return r2.join(e).replace(/<!--[^]*-->/g, "").replace(/<!\[CDATA\[[^]*\]\]>/g, "").replace(/('|")[^\1]*?\1/g, (e2) => (u.push(e2), t)).replace(/\s+/g, " ").replace(/(?:^|>)([^<]*)(?:$|<)/g, (e2, t2, r3, p3) => {
-    var c2, i2;
-    if (r3 && p3.slice(n, r3).replace(/(\S)\/$/, "$1 /").split(" ").map((e3, t3) => {
-      if ("/" === e3[0])
-        c2 = i2 || e3.slice(1) || 1;
-      else if (t3) {
-        if (e3) {
-          var r4 = d[2] || (d[2] = {});
-          "..." === e3.slice(0, 3) ? Object.assign(r4, arguments[++h]) : ([a, l] = e3.split("="), r4[g(a)] = !l || g(l));
-        }
-      } else {
-        for (i2 = g(e3); o.close[d[1] + i2]; )
-          m();
-        d = [d, i2, null], o.empty[i2] && (c2 = i2);
-      }
-    }), c2)
-      for (m(); s !== c2 && o.close[s]; )
-        m();
-    n = r3 + e2.length, t2 && " " !== t2 && g((s = 0, t2), d, true);
-  }), d.root || m(), d.length > 1 ? d : d[0];
-}
-o.empty = {}, o.close = {}, "area base br col command embed hr img input keygen link meta param source track wbr ! !doctype ? ?xml".split(" ").map((e2) => o.empty[e2] = o.empty[e2.toUpperCase()] = true);
-var r = { li: "", dt: "dd", dd: "dt", p: "address article aside blockquote details div dl fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr main menu nav ol pre section table", rt: "rp", rp: "rt", optgroup: "", option: "optgroup", caption: "tbody thead tfoot tr colgroup", colgroup: "thead tbody tfoot tr caption", thead: "tbody tfoot caption", tbody: "tfoot caption", tfoot: "caption", tr: "tbody tfoot", td: "th tr", th: "td tr tbody" };
-var p = function(e2) {
-  [...r[e2].split(" "), e2].map((t2) => {
-    o.close[e2] = o.close[e2.toUpperCase()] = o.close[e2 + t2] = o.close[e2.toUpperCase() + t2] = o.close[e2 + t2.toUpperCase()] = o.close[e2.toUpperCase() + t2.toUpperCase()] = true;
-  });
-};
-for (a in r)
-  p(a);
-var a;
-var xhtm = o;
-var validStyleAttribute = Object.freeze(/* @__PURE__ */ new Set(["accent-color", "align-content", "align-items", "align-self", "align-tracks", "all", "animation", "animation-delay", "animation-direction", "animation-duration", "animation-fill-mode", "animation-iteration-count", "animation-name", "animation-play-state", "animation-timeline", "animation-timing-function", "appearance", "ascent-override", "aspect-ratio", "backdrop-filter", "backface-visibility", "background", "background-attachment", "background-blend-mode", "background-clip", "background-color", "background-image", "background-origin", "background-position", "background-position-x", "background-position-y", "background-repeat", "background-size", "bleed", "block-overflow", "block-size", "border", "border-block", "border-block-color", "border-block-end", "border-block-end-color", "border-block-end-style", "border-block-end-width", "border-block-start", "border-block-start-color", "border-block-start-style", "border-block-start-width", "border-block-style", "border-block-width", "border-bottom", "border-bottom-color", "border-bottom-left-radius", "border-bottom-right-radius", "border-bottom-style", "border-bottom-width", "border-collapse", "border-color", "border-end-end-radius", "border-end-start-radius", "border-image", "border-image-outset", "border-image-repeat", "border-image-slice", "border-image-source", "border-image-width", "border-inline", "border-inline-color", "border-inline-end", "border-inline-end-color", "border-inline-end-style", "border-inline-end-width", "border-inline-start", "border-inline-start-color", "border-inline-start-style", "border-inline-start-width", "border-inline-style", "border-inline-width", "border-left", "border-left-color", "border-left-style", "border-left-width", "border-radius", "border-right", "border-right-color", "border-right-style", "border-right-width", "border-spacing", "border-start-end-radius", "border-start-start-radius", "border-style", "border-top", "border-top-color", "border-top-left-radius", "border-top-right-radius", "border-top-style", "border-top-width", "border-width", "bottom", "box-decoration-break", "box-shadow", "box-sizing", "break-after", "break-before", "break-inside", "caption-side", "caret-color", "clear", "clip", "clip-path", "color", "color-scheme", "column-count", "column-fill", "column-gap", "column-rule", "column-rule-color", "column-rule-style", "column-rule-width", "column-span", "column-width", "columns", "contain", "content", "content-visibility", "counter-increment", "counter-reset", "counter-set", "cursor", "length", "angle", "descent-override", "direction", "display", "resolution", "empty-cells", "fallback", "filter", "flex", "flex-basis", "flex-direction", "flex-flow", "flex-grow", "flex-shrink", "flex-wrap", "flex_value", "float", "font", "font-display", "font-family", "font-feature-settings", "font-kerning", "font-language-override", "font-optical-sizing", "font-size", "font-size-adjust", "font-stretch", "font-style", "font-synthesis", "font-variant", "font-variant-alternates", "font-variant-caps", "font-variant-east-asian", "font-variant-ligatures", "font-variant-numeric", "font-variant-position", "font-variation-settings", "font-weight", "forced-color-adjust", "gap", "grid", "grid-area", "grid-auto-columns", "grid-auto-flow", "grid-auto-rows", "grid-column", "grid-column-end", "grid-column-start", "grid-row", "grid-row-end", "grid-row-start", "grid-template", "grid-template-areas", "grid-template-columns", "grid-template-rows", "frequency", "hanging-punctuation", "height", "hyphenate-character", "hyphens", "image-orientation", "image-rendering", "image-resolution", "inherit", "inherits", "initial", "initial-letter", "initial-letter-align", "initial-value", "inline-size", "input-security", "inset", "inset-block", "inset-block-end", "inset-block-start", "inset-inline", "inset-inline-end", "inset-inline-start", "isolation", "justify-content", "justify-items", "justify-self", "justify-tracks", "left", "letter-spacing", "line-break", "line-clamp", "line-gap-override", "line-height", "line-height-step", "list-style", "list-style-image", "list-style-position", "list-style-type", "margin", "margin-block", "margin-block-end", "margin-block-start", "margin-bottom", "margin-inline", "margin-inline-end", "margin-inline-start", "margin-left", "margin-right", "margin-top", "margin-trim", "marks", "mask", "mask-border", "mask-border-mode", "mask-border-outset", "mask-border-repeat", "mask-border-slice", "mask-border-source", "mask-border-width", "mask-clip", "mask-composite", "mask-image", "mask-mode", "mask-origin", "mask-position", "mask-repeat", "mask-size", "mask-type", "masonry-auto-flow", "math-style", "max-block-size", "max-height", "max-inline-size", "max-lines", "max-width", "max-zoom", "min-block-size", "min-height", "min-inline-size", "min-width", "min-zoom", "mix-blend-mode", "time", "negative", "object-fit", "object-position", "offset", "offset-anchor", "offset-distance", "offset-path", "offset-position", "offset-rotate", "opacity", "order", "orientation", "orphans", "outline", "outline-color", "outline-offset", "outline-style", "outline-width", "overflow", "overflow-anchor", "overflow-block", "overflow-clip-margin", "overflow-inline", "overflow-wrap", "overflow-x", "overflow-y", "overscroll-behavior", "overscroll-behavior-block", "overscroll-behavior-inline", "overscroll-behavior-x", "overscroll-behavior-y", "Pseudo-classes", "Pseudo-elements", "pad", "padding", "padding-block", "padding-block-end", "padding-block-start", "padding-bottom", "padding-inline", "padding-inline-end", "padding-inline-start", "padding-left", "padding-right", "padding-top", "page-break-after", "page-break-before", "page-break-inside", "paint-order", "perspective", "perspective-origin", "place-content", "place-items", "place-self", "pointer-events", "position", "prefix", "print-color-adjust", "quotes", "range", "resize", "revert", "right", "rotate", "row-gap", "ruby-align", "ruby-merge", "ruby-position", "scale", "scroll-behavior", "scroll-margin", "scroll-margin-block", "scroll-margin-block-end", "scroll-margin-block-start", "scroll-margin-bottom", "scroll-margin-inline", "scroll-margin-inline-end", "scroll-margin-inline-start", "scroll-margin-left", "scroll-margin-right", "scroll-margin-top", "scroll-padding", "scroll-padding-block", "scroll-padding-block-end", "scroll-padding-block-start", "scroll-padding-bottom", "scroll-padding-inline", "scroll-padding-inline-end", "scroll-padding-inline-start", "scroll-padding-left", "scroll-padding-right", "scroll-padding-top", "scroll-snap-align", "scroll-snap-stop", "scroll-snap-type", "scrollbar-color", "scrollbar-gutter", "scrollbar-width", "shape-image-threshold", "shape-margin", "shape-outside", "size", "size-adjust", "speak-as", "src", "suffix", "symbols", "syntax", "system", "tab-size", "table-layout", "text-align", "text-align-last", "text-combine-upright", "text-decoration", "text-decoration-color", "text-decoration-line", "text-decoration-skip", "text-decoration-skip-ink", "text-decoration-style", "text-decoration-thickness", "text-emphasis", "text-emphasis-color", "text-emphasis-position", "text-emphasis-style", "text-indent", "text-justify", "text-orientation", "text-overflow", "text-rendering", "text-shadow", "text-size-adjust", "text-transform", "text-underline-offset", "text-underline-position", "top", "touch-action", "transform", "transform-box", "transform-origin", "transform-style", "transition", "transition-delay", "transition-duration", "transition-property", "transition-timing-function", "translate", "unicode-bidi", "unicode-range", "unset", "user-select", "user-zoom", "vertical-align", "viewport-fit", "visibility", "white-space", "widows", "width", "will-change", "word-break", "word-spacing", "word-wrap", "writing-mode", "z-index", "zoom"]));
-var validNonCallbackHtmlAttributes = Object.freeze(/* @__PURE__ */ new Set(["class", "style", "value", "id", "contenteditable", "href", "hidden", "autofocus", "src", "name", "accept", "accesskey", "action", "align", "alt", "async", "autocomplete", "autoplay", "border", "charset", "checked", "cite", "cols", "colspan", "content", "controls", "coords", "data", "datetime", "default", "defer", "dir", "dirname", "disabled", "download", "draggable", "enctype", "for", "form", "formaction", "headers", "high", "hreflang", "http", "ismap", "kind", "label", "lang", "list", "loop", "low", "max", "maxlength", "media", "method", "min", "multiple", "muted", "novalidate", "open", "optimum", "pattern", "placeholder", "poster", "preload", "readonly", "rel", "required", "reversed", "rows", "rowspan", "sandbox", "scope", "selected", "shape", "size", "sizes", "span", "spellcheck", "srcdoc", "srclang", "srcset", "start", "step", "tabindex", "target", "title", "translate", "type", "usemap", "wrap", "bgcolor", "width", "color", "height"]));
-var isValidStyleAttribute = (key) => key.startsWith("-") || validStyleAttribute.has(key);
-var kebabCase = (string) => string.replace(/[a-z]([A-Z])(?=[a-z])/g, (each) => `${each[0]}-${each.slice(1).toLowerCase()}`);
-var isConstructor = (obj) => !!obj.prototype && !!obj.prototype.constructor.name;
-var attachProperties = (source, target) => {
-  const attributes = allKeyDescriptions(source);
-  const propertiesDefition = {};
-  for (const [key, value] of Object.entries(attributes)) {
-    if (["constructor", "prototype", "length"].includes(key)) {
-      continue;
-    }
-    propertiesDefition[key] = {
-      get: () => source[key]
-    };
-  }
-  Object.defineProperties(target, propertiesDefition);
-  return target;
-};
-var ElementalClass = class _ElementalClass {
-  constructor(components2 = {}, options = {}) {
-    const { middleware: middleware2, errorComponentFactory } = options || {};
-    this.components = components2 || {};
-    this.middleware = middleware2 || {};
-    this.errorComponentFactory = errorComponentFactory || defaultErrorComponentFactory;
-    this.html = this.createElement;
-    this.xhtm = xhtm.bind((...args2) => this.createElement(...args2));
-  }
-  static debug = false;
-  static allTags = Symbol.for("allTags");
-  static exclusivelySvgElements = /* @__PURE__ */ new Set(["svg", "animate", "animateMotion", "animateTransform", "circle", "clipPath", "defs", "desc", "discard", "ellipse", "feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence", "filter", "foreignObject", "g", "hatch", "hatchpath", "image", "line", "linearGradient", "marker", "mask", "mesh", "meshgradient", "meshpatch", "meshrow", "metadata", "mpath", "path", "pattern", "polygon", "polyline", "radialGradient", "rect", "set", "stop", "switch", "symbol", "text", "textPath", "tspan", "unknown", "use", "view"]);
-  static randomId = (name) => `${name}${Math.random()}`.replace(".", "");
-  static appendChildren = function(element2, ...children) {
-    for (const each of children) {
-      if (typeof each == "string") {
-        element2.appendChild(new window.Text(each));
-      } else if (each == null) {
-        element2.appendChild(new window.Text(""));
-      } else if (!(each instanceof Object)) {
-        element2.appendChild(new window.Text(`${each}`));
-      } else if (each instanceof Node) {
-        element2.appendChild(each);
-      } else if (each instanceof Array) {
-        _ElementalClass.appendChildren(element2, ...each);
-      } else if (each instanceof Function) {
-        _ElementalClass.appendChildren(element2, each());
-      } else if (each instanceof Promise) {
-        const elementPromise = each;
-        const placeholder = elementPromise.placeholder || document.createElement("div");
-        setTimeout(async () => placeholder.replaceWith(await elementPromise), 0);
-        element2.appendChild(placeholder);
-      } else if (each != null && each instanceof Object) {
-        element2.appendChild(each);
-      }
-    }
-    return element2;
-  };
-  static css = function(first, ...args2) {
-    if (typeof first == "string") {
-      return first;
-    } else if (first == null) {
-      return "";
-    } else if (first instanceof Array) {
-      const strings = first;
-      const values = args2;
-      let finalString = "";
-      for (const each of strings) {
-        finalString += each;
-        if (values.length > 0) {
-          const value = values.shift();
-          if (value instanceof Object) {
-            finalString += Elemental.css(value);
-          } else {
-            finalString += `${value}`;
-          }
-        }
-      }
-      return finalString;
-    } else if (first instanceof Object) {
-      let finalString = "";
-      for (const [key, value] of Object.entries(first)) {
-        if (value != null) {
-          finalString += `${kebabCase(key)}: ${value};`;
-        }
-      }
-      return finalString;
-    } else {
-      return first;
-    }
-  };
-  static combineClasses = (...classes) => {
-    classes = classes.filter((each) => each != null);
-    let classesFinalList = [];
-    for (let eachEntry of classes) {
-      if (typeof eachEntry == "string") {
-        eachEntry = eachEntry.split(" ");
-      }
-      if (eachEntry instanceof Array) {
-        eachEntry = eachEntry.flat(Infinity);
-        for (let eachName of eachEntry) {
-          classesFinalList.push(eachName);
-        }
-      } else if (eachEntry instanceof Object) {
-        for (const [className, enabled] of Object.entries(eachEntry)) {
-          if (enabled) {
-            classesFinalList.push(className);
-          }
-        }
-      }
-    }
-    return classesFinalList;
-  };
-  createElement(...args2) {
-    if (args2[0] instanceof Array) {
-      return this.xhtm(...args2);
-    } else {
-      _ElementalClass.debug && console.debug(`args is:`, args2);
-      for (const middleware2 of (this.middleware[_ElementalClass.allTags] || []).concat(this.middleware[args2[0]] || [])) {
-        try {
-          args2 = eachMiddleWare(args2);
-        } catch (error) {
-          console.error("[ElementalClass] one of the middleware functions failed:", eachMiddleWare, args2);
-        }
-      }
-      let [key, properties, ...children] = args2;
-      _ElementalClass.debug && console.debug(`key, properties, children is:`, key, properties, children);
-      if (this.components[key] instanceof Function) {
-        key = this.components[key];
-      }
-      if (key instanceof Function) {
-        let output;
-        try {
-          output = isConstructor(key) ? new key({ ...properties, children }) : key({ ...properties, children });
-        } catch (error) {
-          return this.errorComponentFactory({ ...properties, children }, key, error);
-        }
-        if (output instanceof Promise) {
-          const elementPromise = output;
-          const placeholder = elementPromise.placeholder || document.createElement("div");
-          setTimeout(async () => placeholder.replaceWith(await elementPromise), 0);
-          return placeholder;
-        } else {
-          return output;
-        }
-      }
-      const isSvg = _ElementalClass.exclusivelySvgElements.has(key);
-      const element2 = isSvg ? document.createElementNS("http://www.w3.org/2000/svg", key) : document.createElement(key);
-      let styleString = "";
-      if (properties instanceof Object) {
-        for (let [key2, value] of Object.entries(properties)) {
-          if (key2 == "style") {
-            styleString += _ElementalClass.css(value);
-            continue;
-          }
-          if (key2.slice(0, 2) == "on" && value instanceof Function) {
-            element2.addEventListener(key2.slice(2).toLowerCase(), value);
-          }
-          if (key2 == "class") {
-            if (value instanceof Array) {
-              value = value.join(" ");
-            } else if (value instanceof Object) {
-              let newValue = "";
-              for (const [classString, enable] of Object.entries(value)) {
-                if (enable) {
-                  newValue += classString;
-                }
-              }
-              value = newValue;
-            }
-          }
-          if (isSvg) {
-            if (value instanceof Array) {
-              value = value.join(" ");
-            }
-            element2.setAttribute(kebabCase(key2), value);
-            continue;
-          }
-          if (value != null && !(value instanceof Object) && validNonCallbackHtmlAttributes.has(key2)) {
-            element2.setAttribute(key2, value);
-          }
-          try {
-            element2[key2] = value;
-          } catch (error) {
-          }
-          if (isValidStyleAttribute(key2)) {
-            styleString += `;${key2}: ${value};`;
-          }
-        }
-      }
-      if (styleString) {
-        element2.setAttribute("style", styleString);
-      }
-      return _ElementalClass.appendChildren(element2, ...children);
-    }
-  }
-  extend(additionalComponents = {}, options = {}) {
-    const { middleware: middleware2, ...other } = options || {};
-    return Elemental(
-      { ...this.components, ...additionalComponents },
-      {
-        middleware: { ...this.middleware, ...middleware2 },
-        ...other
-      }
-    );
-  }
-};
-var Elemental = (...args2) => {
-  const elementalObject = new ElementalClass(...args2);
-  const createElementFunction = elementalObject.createElement.bind(elementalObject);
-  attachProperties(ElementalClass, createElementFunction);
-  attachProperties(elementalObject, createElementFunction);
-  return createElementFunction;
-};
-attachProperties(ElementalClass, Elemental);
-function defaultErrorComponentFactory({ children, ...properties }, key, error) {
-  const element2 = document.createElement("div");
-  const errorDetails = document.createElement("code");
-  const childContainer = document.createElement("div");
-  element2.setAttribute("style", `
-        all:              unset;
-        display:          flex;
-        flex-direction:   column;
-        padding:          1.5rem;
-        background-color: #f5a5a8;
-        color:            white;
-        font-family:      -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-        font-size:        18px;
-        font-weight:      400;
-        overflow:         auto;
-    `);
-  element2.innerHTML = `I'm sorry, there was an error when loading this part of the page \u{1F641} `;
-  let errorElementPart;
-  if (typeof key == "string") {
-    errorElementPart = `<${key} />`;
-  } else {
-    try {
-      errorElementPart = `<${key.prototype.constructor.name} />`;
-    } catch (error2) {
-      try {
-        errorElementPart = `<${key.name} />`;
-      } catch (error3) {
-        errorElementPart = `<${key} />`;
-      }
-    }
-  }
-  let errorJsonObject = {};
-  for (const [key2, value] of Object.entries(properties)) {
-    try {
-      errorJsonObject[key2] = JSON.parse(JSON.stringify(value));
-    } catch (error2) {
-      errorJsonObject[key2] = `${value}`;
-    }
-  }
-  errorDetails.innerHTML = `tag: ${errorElementPart}
-properties: ${JSON.stringify(errorJsonObject, 0, 4)}
-error: ${error}`;
-  errorDetails.setAttribute("style", `
-        padding: 1rem;
-        background-color: #161b22;
-        color: #789896;
-        white-space: pre;
-        max-width: 85vw;
-        overflow: auto;
-    `);
-  element2.appendChild(errorDetails);
-  childContainer.setAttribute("style", `
-        all: unset
-        display: flex
-        flex-direction: column
-        margin-top: 1.3rem
-    `);
-  ElementalClass.appendChildren(childContainer, children);
-  element2.appendChild(childContainer);
-  return element2;
-}
-try {
-  const originalHead = document.head;
-  Object.defineProperty(document, "head", {
-    set: (element2) => ElementalClass.appendChildren(originalHead, ...element2.childNodes),
-    get: () => originalHead,
-    writable: true
-  });
-} catch (error) {
-}
-var combineClasses = ElementalClass.combineClasses;
-var html = Elemental();
-var css = ElementalClass.css;
-var allTags = ElementalClass.allTags;
-
 // https://deno.land/x/base64@v0.2.1/base.ts
 function getLengths(b64) {
   const len = b64.length;
@@ -1041,7 +480,7 @@ var emotionSheet_cjs_prod = createCommonjsModule2(function(module, exports) {
         var sheet3 = sheetForTag(tag);
         try {
           sheet3.insertRule(rule, sheet3.cssRules.length);
-        } catch (e2) {
+        } catch (e) {
         }
       } else {
         tag.appendChild(document.createTextNode(rule));
@@ -1588,8 +1027,8 @@ function prefix(value, length2, children) {
       break;
     case 5152:
     case 5920:
-      return replace(value, /(.+?):(\d+)(\s*\/\s*(span)?\s*(\d+))?(.*)/, function(_, a, b, c, d, e2, f) {
-        return MS + a + ":" + b + f + (c ? MS + a + "-span:" + (d ? e2 : +e2 - +b) + f : "") + value;
+      return replace(value, /(.+?):(\d+)(\s*\/\s*(span)?\s*(\d+))?(.*)/, function(_, a, b, c, d, e, f) {
+        return MS + a + ":" + b + f + (c ? MS + a + "-span:" + (d ? e : +e - +b) + f : "") + value;
       });
     case 4949:
       if (charat(value, length2 + 6) === 121)
@@ -1812,8 +1251,8 @@ var weakMemoize = /* @__PURE__ */ getDefaultExportFromNamespaceIfNotNamed2(weak_
 var memoize = /* @__PURE__ */ getDefaultExportFromNamespaceIfNotNamed2(memoize_exports);
 var emotionCache_cjs_prod = createCommonjsModule5(function(module, exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
-  function _interopDefault(e2) {
-    return e2 && e2.__esModule ? e2 : { default: e2 };
+  function _interopDefault(e) {
+    return e && e.__esModule ? e : { default: e };
   }
   var weakMemoize__default = /* @__PURE__ */ _interopDefault(weakMemoize);
   var memoize__default = /* @__PURE__ */ _interopDefault(memoize);
@@ -2314,8 +1753,8 @@ var unitless = /* @__PURE__ */ getDefaultExportFromNamespaceIfNotNamed3(unitless
 var memoize2 = /* @__PURE__ */ getDefaultExportFromNamespaceIfNotNamed3(memoize_exports);
 var emotionSerialize_cjs_prod = createCommonjsModule8(function(module, exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
-  function _interopDefault(e2) {
-    return e2 && e2.__esModule ? e2 : { default: e2 };
+  function _interopDefault(e) {
+    return e && e.__esModule ? e : { default: e };
   }
   var hashString__default = /* @__PURE__ */ _interopDefault(hashString);
   var unitless__default = /* @__PURE__ */ _interopDefault(unitless);
@@ -2573,8 +2012,8 @@ var serialize2 = /* @__PURE__ */ getDefaultExportFromNamespaceIfNotNamed(seriali
 var utils = /* @__PURE__ */ getDefaultExportFromNamespaceIfNotNamed(utils_exports);
 var emotionCssCreateInstance_cjs_prod = createCommonjsModule(function(module, exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
-  function _interopDefault(e2) {
-    return e2 && e2.__esModule ? e2 : { default: e2 };
+  function _interopDefault(e) {
+    return e && e.__esModule ? e : { default: e };
   }
   var createCache__default = /* @__PURE__ */ _interopDefault(createCache);
   function insertWithoutScoping(cache22, serialized) {
@@ -2723,7 +2162,28 @@ var sheet2 = emotionCss_cjs.sheet;
 
 // elements.jsx
 var hash2 = (value) => sha256(value, "utf-8", "hex");
-window.Elemental = Elemental;
+var combineClasses = (...classes) => {
+  classes = classes.filter((each) => each != null);
+  let classesFinalList = [];
+  for (let eachEntry of classes) {
+    if (typeof eachEntry == "string") {
+      eachEntry = eachEntry.split(" ");
+    }
+    if (eachEntry instanceof Array) {
+      eachEntry = eachEntry.flat(Infinity);
+      for (let eachName of eachEntry) {
+        classesFinalList.push(eachName);
+      }
+    } else if (eachEntry instanceof Object) {
+      for (const [className, enabled] of Object.entries(eachEntry)) {
+        if (enabled) {
+          classesFinalList.push(className);
+        }
+      }
+    }
+  }
+  return classesFinalList;
+};
 var helperElement = document.createElement("div");
 helperElement.setAttribute("note", "STUFF WILL BREAK IF YOU DELETE ME");
 helperElement.setAttribute("style", "position: fixed; top: 0; left: 0;");
