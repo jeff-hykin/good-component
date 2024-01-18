@@ -3,6 +3,7 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.asynciterable" />
 /// <reference lib="deno.ns" />
+import { html } from "https://deno.land/x/elementalist@0.5.34/main/deno.js?code"
 import { css, cx } from "./main/helpers/css.bundle.js"
 export { css as css, cx as cx}
 
