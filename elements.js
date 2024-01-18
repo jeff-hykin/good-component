@@ -4979,6 +4979,9 @@ function Column({ verticalAlignment, horizontalAlignment, children, ...arg }) {
   const align = translateAlignment(horizontalAlignment || "left");
   const verticalText = verticalAlignment == "center" ? "middle" : verticalAlignment;
   arg = setup_styles_default(arg, `
+                display: flex;
+                flex-direction: column;
+                transition: all 0.4s ease-in-out 0s;
                 justify-content: ${justify};
                 align-items: ${align};
                 text-align: ${horizontalAlignment};
@@ -5000,6 +5003,9 @@ function Row({ verticalAlignment, horizontalAlignment, children, ...arg }) {
   const align = translateAlignment(verticalAlignment || "top");
   const verticalText = verticalAlignment == "center" ? "middle" : verticalAlignment;
   arg = setup_styles_default(arg, `
+                display: flex;
+                flex-direction: row;
+                transition: all 0.4s ease-in-out 0s;
                 justify-content: ${justify};
                 align-items: ${align};
                 text-align: ${horizontalAlignment};
@@ -5042,6 +5048,13 @@ var inputClass = create_css_class_default(`input`, [
 function Input(arg) {
   arg = setup_class_styles_default(arg);
   arg.class = combine_classes_default(inputClass, arg.class);
+  arg = setup_styles_default(arg, `
+                margin: 0;
+                font-family: inherit;
+                font-size: inherit;
+                line-height: inherit;
+                overflow: visible;
+            `);
   return /* @__PURE__ */ html("input", { ...arg });
 }
 var buttonClass = create_css_class_default(`button`, [
@@ -5061,6 +5074,16 @@ var buttonClass = create_css_class_default(`button`, [
 function Button(arg) {
   arg = setup_class_styles_default(arg);
   arg.class = combine_classes_default(buttonClass, arg.class);
+  arg = setup_styles_default(arg, `
+                border-radius: 0;
+                margin: 0;
+                font-family: inherit;
+                font-size: inherit;
+                line-height: inherit;
+                -webkit-appearance: button;
+                overflow: visible;
+                text-transform: none;
+            `);
   return /* @__PURE__ */ html("button", { ...arg }, arg.children);
 }
 var checkboxClass = create_css_class_default(`checkbox`, [

@@ -109,6 +109,9 @@ export { css as css, cx as cx}
             const align = translateAlignment(horizontalAlignment || "left")
             const verticalText = verticalAlignment == "center" ? "middle" : verticalAlignment // css is a special breed of inconsistent
             arg = setupStyles(arg, `
+                display: flex;
+                flex-direction: column;
+                transition: all 0.4s ease-in-out 0s;
                 justify-content: ${justify};
                 align-items: ${align};
                 text-align: ${horizontalAlignment};
@@ -147,6 +150,9 @@ export { css as css, cx as cx}
             const align = translateAlignment(verticalAlignment || "top")
             const verticalText = verticalAlignment == "center" ? "middle" : verticalAlignment // css is a special breed of inconsistent
             arg = setupStyles(arg, `
+                display: flex;
+                flex-direction: row;
+                transition: all 0.4s ease-in-out 0s;
                 justify-content: ${justify};
                 align-items: ${align};
                 text-align: ${horizontalAlignment};
@@ -213,6 +219,13 @@ export { css as css, cx as cx}
             // 
             arg       = setupClassStyles(arg)
             arg.class = combineClasses(inputClass, arg.class)
+            arg = setupStyles(arg, `
+                margin: 0;
+                font-family: inherit;
+                font-size: inherit;
+                line-height: inherit;
+                overflow: visible;
+            `)
             
             // 
             // element
@@ -242,6 +255,16 @@ export { css as css, cx as cx}
             // 
             arg       = setupClassStyles(arg)
             arg.class = combineClasses(buttonClass, arg.class)
+            arg = setupStyles(arg, `
+                border-radius: 0;
+                margin: 0;
+                font-family: inherit;
+                font-size: inherit;
+                line-height: inherit;
+                -webkit-appearance: button;
+                overflow: visible;
+                text-transform: none;
+            `)
             
             // 
             // element
