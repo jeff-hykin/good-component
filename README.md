@@ -6,10 +6,10 @@ A pure-js toolkit for UI elements that I made mostly for myself.
 ### How to use
 
 ```js
-import { css, components, Column, Row, askForFiles, Code, Markdown, Input, Button, Checkbox, Dropdown, popUp, cx, } from "https://deno.land/x/good_component@0.2.11/elements.js"
-import { fadeIn, fadeOut } from "https://deno.land/x/good_component@0.2.11/main/animations.js"
-import { addDynamicStyleFlags, setupStyles, createCssClass, setupClassStyles, hoverStyleHelper, combineClasses, mergeStyles, AfterSilent, removeAllChildElements } from "https://deno.land/x/good_component@0.2.11/main/helpers.js"
-import { showToast } from "https://deno.land/x/good_component@0.2.11/main/actions.js"
+import { css, components, Column, Row, askForFiles, Code, Markdown, Input, Button, Checkbox, Dropdown, popUp, cx, } from "https://deno.land/x/good_component@0.2.12/elements.js"
+import { fadeIn, fadeOut } from "https://deno.land/x/good_component@0.2.12/main/animations.js"
+import { addDynamicStyleFlags, setupStyles, createCssClass, setupClassStyles, hoverStyleHelper, combineClasses, mergeStyles, AfterSilent, removeAllChildElements } from "https://deno.land/x/good_component@0.2.12/main/helpers.js"
+import { showToast } from "https://deno.land/x/good_component@0.2.12/main/actions.js"
 
 showToast("Howdy!", {
     backgroundColor: "#7D0A0A",

@@ -88,13 +88,11 @@ export { css as css, cx as cx}
     // 
     // Column
     // 
-        const columnClass = createCssClass(`column`, [
-            `{
-                display: flex;
-                flex-direction: column;
-                transition: all 0.4s ease-in-out 0s;
-            }`
-        ])
+        const columnClass = css`
+            display: flex;
+            flex-direction: column;
+            transition: all 0.4s ease-in-out 0s;
+        `
         export function Column({ verticalAlignment, horizontalAlignment, children, ...arg }) {
             // 
             // class
@@ -129,13 +127,11 @@ export { css as css, cx as cx}
     // 
     // row
     // 
-        const rowClass = createCssClass(`row`, [
-            `{
-                display: flex;
-                flex-direction: row;
-                transition: all 0.4s ease-in-out 0s;
-            }`
-        ])
+        const rowClass = css`
+            display: flex;
+            flex-direction: row;
+            transition: all 0.4s ease-in-out 0s;
+        `
         export function Row({ verticalAlignment, horizontalAlignment, children, ...arg }) {
             // 
             // class
@@ -170,18 +166,16 @@ export { css as css, cx as cx}
     // 
     // Code
     // 
-        const codeClass = createCssClass(`code`, [ // these mostly exist to create similar behavior across browsers 
-            `{
-                white-space: pre;
-                font-family: monospace, monospace;
-                font-size: 100%;
-                font: inherit;
-                vertical-align: baseline;
-                margin: 0;
-                padding: 0;
-                border: 0;
-            }`,
-        ])
+        const codeClass = css`
+            white-space: pre;
+            font-family: monospace, monospace;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+            margin: 0;
+            padding: 0;
+            border: 0;
+        `
         export function Code({children, ...arg}) {
             // 
             // class
@@ -200,19 +194,20 @@ export { css as css, cx as cx}
     // 
     // Input
     // 
-        const inputClass = createCssClass(`input`, [ // these merely exist to create similar behavior across browsers 
-            `{
-                margin: 0;
-                font-family: inherit;
-                font-size: inherit;
-                line-height: inherit;
-                overflow: visible;
-            }`,
-            `[type=date]           { -webkit-appearance: listbox; }`,
-            `[type=time]           { -webkit-appearance: listbox; }`,
-            `[type=datetime-local] { -webkit-appearance: listbox; }`,
-            `[type=month]          { -webkit-appearance: listbox; }`,
-        ])
+        const inputClass = css`
+            margin: 0;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+            overflow: visible;
+        `
+        // TODO:
+        // createCssClass(`input`, [ // these merely exist to create similar behavior across browsers 
+        //     `[type=date]           { -webkit-appearance: listbox; }`,
+        //     `[type=time]           { -webkit-appearance: listbox; }`,
+        //     `[type=datetime-local] { -webkit-appearance: listbox; }`,
+        //     `[type=month]          { -webkit-appearance: listbox; }`,
+        // ])
         export function Input(arg) {
             // 
             // class
@@ -236,19 +231,18 @@ export { css as css, cx as cx}
     // 
     // Button
     // 
-        const buttonClass = createCssClass(`button`, [ // these merely exist to create similar behavior across browsers 
-            `{
-                border-radius: 0;
-                margin: 0;
-                font-family: inherit;
-                font-size: inherit;
-                line-height: inherit;
-                -webkit-appearance: button;
-                overflow: visible;
-                text-transform: none;
-            }`,
-            `::-moz-focus-inner   { border-style: none; padding: 0;}`,
-        ])
+        const buttonClass = css`
+            border-radius: 0;
+            margin: 0;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+            -webkit-appearance: button;
+            overflow: visible;
+            text-transform: none;
+        `
+        // TODO:
+        // `::-moz-focus-inner   { border-style: none; padding: 0;}`,
         export function Button(arg) {
             // 
             // class
@@ -277,12 +271,10 @@ export { css as css, cx as cx}
     // 
     // Checkbox
     // 
-        const checkboxClass = createCssClass(`checkbox`, [ // these merely exist to create similar behavior across browsers 
-            `{
-                box-sizing: border-box;
-                padding: 0;
-            }`,
-        ])
+        const checkboxClass = css`
+            box-sizing: border-box;
+            padding: 0;
+        `
         export function Checkbox(arg) {
             // 
             // class
@@ -318,18 +310,14 @@ export { css as css, cx as cx}
     // Dropdown
     // 
         const originalDisplayValueSymbol = Symbol("originalDisplayValue")
-        const dropdownPlaceholder = createCssClass(`dropdownPlaceholder`, [ // these merely exist to create similar behavior across browsers 
-            `{
-                overflow: visible;
-            }`,
-        ])
-        const dropdownList = createCssClass(`dropdownList`, [ // these merely exist to create similar behavior across browsers 
-            `{
-                overflow: auto;
-                height: fit-content;
-                max-height: 50vh;
-            }`,
-        ])
+        const dropdownPlaceholder = css`
+            overflow: visible;
+        `
+        const dropdownList = css`
+            overflow: auto;
+            height: fit-content;
+            max-height: 50vh;
+        `
         export function Dropdown({ children, ...arg}) {
             // 
             // class
