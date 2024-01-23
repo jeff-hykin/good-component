@@ -578,4 +578,4 @@ export const showErrorToast = (message, options)=>{
     })
 }
 
-export default showToast
+export default (...args)=>showToast(...args)
