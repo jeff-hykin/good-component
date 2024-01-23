@@ -564,4 +564,18 @@ export const showToast = (message, options)=>{
     return toast
 }
 
+export const showErrorToast = (message, options)=>{
+    var toast
+    return toast = showToast(message, {
+        backgroundColor: "coral",
+        duration: NaN,
+        onClick: ()=>{
+            // dissmiss on click
+            toast.hideToast()
+        },
+        ...options,
+        text: message,
+    })
+}
+
 export default showToast
