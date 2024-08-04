@@ -22,7 +22,7 @@ export const dynamicStyler = Symbol("dynamicStyler")
  */
 const addDynamicStyleFlags = ({element, styleFunc, flagKeys}) => {
     element[dynamicStyler] = styleFunc
-    for (const [key, value] of Object.entries(flagKeys)) {
+    for (const [attribute, value] of Object.entries(flagKeys)) {
         const [ positiveEvent, negativeEvent ] = value
         element.addEventListener(positiveEvent, ()=>{
             element[attribute] = true
