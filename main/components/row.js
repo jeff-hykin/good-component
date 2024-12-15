@@ -20,20 +20,12 @@ export function Row({ verticalAlignment, horizontalAlignment, ...arg }) {
     // 
     const justify = translateAlignment(horizontalAlignment || "left")
     const align = translateAlignment(verticalAlignment || "top")
-    const verticalText = verticalAlignment == "center" ? "middle" : verticalAlignment // css is a special breed of inconsistent
     arg = setupStyles(arg, `
-        display: flex;
-        flex-direction: row;
-        transition: all 0.4s ease-in-out 0s;
         justify-content: ${justify};
         align-items: ${align};
-        text-align: ${horizontalAlignment};
-        vertical-align: ${verticalText};
+        text-align: ${horizontalAlignment||'inherit'};
     `)
 
-    // 
-    // element
-    // 
     const div = document.createElement(`div`)
     passAlongProps(div, arg)
     return div

@@ -3,11 +3,11 @@ import { css, cx } from "./css.bundle.js"
 // 
 // create helper element for styles and such
 // 
-const setupStyles = (arg, styles)=>{
-    if (arg.styles) {
-        arg.styles = `${styles};${css(arg.styles)};`
+const setupStyles = (arg, style)=>{
+    if (arg.style) {
+        arg.style = `${style};${css(arg.style)};`
     } else {
-        arg.styles = styles
+        arg.style = style
     }
     return arg
 }
