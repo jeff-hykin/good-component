@@ -21,6 +21,7 @@ export function Row({ verticalAlignment, horizontalAlignment, ...arg }) {
     const justify = translateAlignment(horizontalAlignment || "left")
     const align = translateAlignment(verticalAlignment || "top")
     const div = document.createElement(`div`)
+    div.setAttribute("name", "Row")
     // local stuff first, so that props can override
     passAlongProps(div, {
         style: `
