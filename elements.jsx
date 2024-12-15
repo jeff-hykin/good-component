@@ -3,7 +3,7 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.asynciterable" />
 /// <reference lib="deno.ns" />
-import { html } from "./main/imports.js"
+import { html, passAlongProps } from "./main/imports.js"
 import { css, cx } from "./main/helpers/css.bundle.js"
 export { css as css, cx as cx}
 
@@ -66,7 +66,7 @@ export { css as css, cx as cx}
     // 
     import { helperElement } from "./main/helpers/helper_element.js"
     import { translateAlignment } from "./main/helpers/translate_alignment.js"
-    import { setupStyles, createCssClass, setupClassStyles, hoverStyleHelper, combineClasses, mergeStyles } from "./main/helpers.js"
+    import { createCssClass, setupClassStyles, hoverStyleHelper, combineClasses, mergeStyles } from "./main/helpers.js"
     import { Column } from "./main/components/column.js" 
     import { Row } from "./main/components/row.js"
     import { Button } from "./main/components/button.js"
@@ -124,18 +124,21 @@ export { css as css, cx as cx}
         //     `[type=month]          { -webkit-appearance: listbox; }`,
         // ])
         export function Input(arg) {
+            const element = document.createElement(`input`)
+            passAlongProps(element, { 
+                style: `
+                    margin: 0;
+                    font-family: inherit;
+                    font-size: inherit;
+                    line-height: inherit;
+                    overflow: visible;
+                `.replace(/\s+/g, " ").trim(), // replace is to help bundle optimizers
+            })
             // 
             // class
             // 
             arg       = setupClassStyles(arg)
             arg.class = combineClasses(inputClass, arg.class)
-            arg = setupStyles(arg, `
-                margin: 0;
-                font-family: inherit;
-                font-size: inherit;
-                line-height: inherit;
-                overflow: visible;
-            `)
             
             // 
             // element
