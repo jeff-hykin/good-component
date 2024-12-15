@@ -26,11 +26,11 @@ const addDynamicStyleFlags = ({element, styleFunc, flagKeys}) => {
         const [ positiveEvent, negativeEvent ] = value
         element.addEventListener(positiveEvent, ()=>{
             element[attribute] = true
-            (element[dynamicStyler]||nullFunc)(element)
+            ;(element[dynamicStyler]||nullFunc)(element)
         })
         element.addEventListener(negativeEvent, ()=>{
             element[attribute] = false
-            (element[dynamicStyler]||nullFunc)(element)
+            ;(element[dynamicStyler]||nullFunc)(element)
         })
     }
 }

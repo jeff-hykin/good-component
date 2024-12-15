@@ -3,7 +3,7 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.asynciterable" />
 /// <reference lib="deno.ns" />
-import { html } from "https://deno.land/x/elementalist@0.5.35/main/deno.js?code"
+import { html } from "./main/imports.js"
 import { css, cx } from "./main/helpers/css.bundle.js"
 export { css as css, cx as cx}
 
@@ -64,20 +64,13 @@ export { css as css, cx as cx}
     // 
     // create helper element for styles and such
     // 
-    const helperElement = document.createElement("div")
-    helperElement.setAttribute("note", "STUFF WILL BREAK IF YOU DELETE ME")
-    helperElement.setAttribute("style", "position: fixed; top: 0; left: 0;")
-    window.addEventListener("load", ()=>document.body.prepend(helperElement))
-    const translateAlignment = (name) => {
-        if (name == "top" || name == "left") {
-            return "flex-start"
-        } else if (name == "bottom" || name == "right") {
-            return "flex-end"
-        } else {
-            return name
-        }
-    }
+    import { helperElement } from "./main/helpers/helper_element.js"
+    import { translateAlignment } from "./main/helpers/translate_alignment.js"
     import { setupStyles, createCssClass, setupClassStyles, hoverStyleHelper, combineClasses, mergeStyles } from "./main/helpers.js"
+    import { Column } from "./main/components/column.js" 
+    import { Row } from "./main/components/row.js"
+    import { Button } from "./main/components/button.js"
+    export { Column, Row, Button }
 // 
 // 
 // 
@@ -85,84 +78,6 @@ export { css as css, cx as cx}
 // 
 // 
 // 
-    // 
-    // Column
-    // 
-        const columnClass = css`
-            display: flex;
-            flex-direction: column;
-            transition: all 0.4s ease-in-out 0s;
-        `
-        export function Column({ verticalAlignment, horizontalAlignment, children, ...arg }) {
-            // 
-            // class
-            // 
-            arg       = setupClassStyles(arg)
-            arg.class = combineClasses(columnClass, arg.class)
-            
-            // 
-            // style
-            // 
-            const justify = translateAlignment(verticalAlignment || "top")
-            const align = translateAlignment(horizontalAlignment || "left")
-            const verticalText = verticalAlignment == "center" ? "middle" : verticalAlignment // css is a special breed of inconsistent
-            arg = setupStyles(arg, `
-                display: flex;
-                flex-direction: column;
-                transition: all 0.4s ease-in-out 0s;
-                justify-content: ${justify};
-                align-items: ${align};
-                text-align: ${horizontalAlignment};
-                vertical-align: ${verticalText};
-            `)
-
-            // 
-            // element
-            // 
-            return <div {...arg}>
-                {children}
-            </div>
-        }
-
-    // 
-    // row
-    // 
-        const rowClass = css`
-            display: flex;
-            flex-direction: row;
-            transition: all 0.4s ease-in-out 0s;
-        `
-        export function Row({ verticalAlignment, horizontalAlignment, children, ...arg }) {
-            // 
-            // class
-            // 
-            arg       = setupClassStyles(arg)
-            arg.class = combineClasses(rowClass, arg.class)
-            
-            // 
-            // style
-            // 
-            const justify = translateAlignment(horizontalAlignment || "left")
-            const align = translateAlignment(verticalAlignment || "top")
-            const verticalText = verticalAlignment == "center" ? "middle" : verticalAlignment // css is a special breed of inconsistent
-            arg = setupStyles(arg, `
-                display: flex;
-                flex-direction: row;
-                transition: all 0.4s ease-in-out 0s;
-                justify-content: ${justify};
-                align-items: ${align};
-                text-align: ${horizontalAlignment};
-                vertical-align: ${verticalText};
-            `)
-
-            // 
-            // element
-            // 
-            return <div {...arg}>
-                {children}
-            </div>
-        }
-    
     // 
     // Code
     // 
@@ -226,46 +141,6 @@ export { css as css, cx as cx}
             // element
             // 
             return <input {...arg} />
-        }
-    
-    // 
-    // Button
-    // 
-        const buttonClass = css`
-            border-radius: 0;
-            margin: 0;
-            font-family: inherit;
-            font-size: inherit;
-            line-height: inherit;
-            -webkit-appearance: button;
-            overflow: visible;
-            text-transform: none;
-        `
-        // TODO:
-        // `::-moz-focus-inner   { border-style: none; padding: 0;}`,
-        export function Button(arg) {
-            // 
-            // class
-            // 
-            arg       = setupClassStyles(arg)
-            arg.class = combineClasses(buttonClass, arg.class)
-            arg = setupStyles(arg, `
-                border-radius: 0;
-                margin: 0;
-                font-family: inherit;
-                font-size: inherit;
-                line-height: inherit;
-                -webkit-appearance: button;
-                overflow: visible;
-                text-transform: none;
-            `)
-            
-            // 
-            // element
-            // 
-            return <button {...arg}>
-                {arg.children}
-            </button>
         }
     
     // 
