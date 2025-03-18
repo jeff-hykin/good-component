@@ -137,7 +137,7 @@ export class Toastify {
         callback: function () {},
         destination: undefined,
         newWindow: false,
-        close: false,
+        close: true,
         gravity: toastifyBottom,
         positionLeft: false,
         position: "",
@@ -167,7 +167,7 @@ export class Toastify {
     * @param {string} [options.selector] - CSS Selector on which the toast should be added
     * @param {url} [options.destination] - URL to which the browser should be navigated on click of the toast
     * @param {boolean} [options.newWindow=false] - Decides whether the destination should be opened in a new window or not
-    * @param {boolean} [options.close=false] - To show the close icon or not
+    * @param {boolean} [options.close=true] - To show the close icon or not
     * @param {string} [options.gravity=toastify-top] - To show the toast from top or bottom
     * @param {string} [options.position=right] - To show the toast on left or right
     * @param {string} [options.backgroundColor] - Sets the background color of the toast (To be deprecated)
