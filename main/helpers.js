@@ -11,4 +11,3 @@ import mergeStyles            from "./helpers/merge_styles.js"             ; exp
 import AfterSilent            from "./helpers/after_silent.js"             ; export { AfterSilent }
 import removeAllChildElements from "./helpers/remove_all_child_elements.js"; export { removeAllChildElements }
 import addDynamicStyleFlags   from "./helpers/add_dynamic_style_flags.js"  ; export { addDynamicStyleFlags }
-import download               from "./helpers/download.js"                 ; export { download }

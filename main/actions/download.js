@@ -1,4 +1,4 @@
-export default function download(filename, textOrBlob) {
+export function download(filename, textOrBlob) {
     const element = document.createElement('a')
     let url
     if (typeof textOrBlob == "string") {
